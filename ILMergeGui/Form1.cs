@@ -626,12 +626,14 @@ namespace ILMergeGui
             CboTargetFramework.SelectedIndex = frameworks.Count - 1;
 
             CboDebug.SelectedIndex = 1;
-            
+
             //ChkCopyAttributes.Checked = (Boolean)Settings.Default.Properties["CopyAttributes"].DefaultValue;
             ChkCopyAttributes.Checked = true;
             ChkUnionDuplicates.Checked = false;
             ChkSignKeyFile.Checked = false;
             ChkDelayedSign.Checked = false;
+
+            //String x = Properties.Settings.Default["Log"].ToString();
 
             TxtKeyFile.Text = String.Empty;
             TxtLogFile.Text = String.Empty;
