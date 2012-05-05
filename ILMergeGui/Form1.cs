@@ -31,6 +31,8 @@
  *                  - Changed linklabels
  *                  - Removed donate.
  *                  - Debugged MakeRelativePath (same paths returned empty string).
+ * 05-05-2012 - veg - Added menubar
+ *                  - Added saving and restoring of settings in xml format.
  * ----------   ---   ------------------------------------------------------------------------------- */
 
 #endregion Header
@@ -42,13 +44,19 @@ namespace ILMergeGui
     using System.Diagnostics;
     using System.IO;
     using System.Windows.Forms;
+    using System.Xml;
+    using System.Xml.Linq;
 
     using ILMergeGui.Properties;
-
     using Microsoft.Win32;
+    using System.Drawing;
 
     //! TODO Make sure dialogs are cleaned before re-use
-    //! TODO Find out what options mean.
+    //! TODO Add commandline options (cfg & /Merge).
+    //! TODO Generate ILMerge.exe Commandline 
+    //
+    //! TODO Find out what ILMerge commandline options actually mean.
+    //
     //! TODO Detect CF Framework (C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework)
     //! TODO Detect MicroFramework (MicroFrameworkPK_v4_1).
     //       HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\10.0_Config\MSBuild\SafeImports
@@ -388,16 +396,16 @@ namespace ILMergeGui
 
             PreMerge();
 
-            if (!Directory.Exists(Path.GetDirectoryName(TxtOutputPath.Text)))
+            if (!Directory.Exists(Path.GetDirectoryName(TxtOutputAssembly.Text)))
             {
                 MessageBox.Show(Resources.Error_NoOutputPath, Resources.Error_Term, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                TxtOutputPath.Focus();
+                TxtOutputAssembly.Focus();
 
                 return;
             }
             else
             {
-                TxtOutputPath.Text = TxtOutputPath.Text.Trim();
+                TxtOutputAssembly.Text = TxtOutputAssembly.Text.Trim();
             }
 
             if (File.Exists(TxtKeyFile.Text) && !File.Exists(TxtKeyFile.Text))
@@ -408,20 +416,20 @@ namespace ILMergeGui
 
             for (Int32 i = 0; i < ListAssembly.Items.Count; i++)
             {
-                if (ListAssembly.Items[i].ToString().ToLower().Equals(TxtOutputPath.Text.ToLower()))
+                if (ListAssembly.Items[i].ToString().ToLower().Equals(TxtOutputAssembly.Text.ToLower()))
                 {
                     MessageBox.Show(Resources.Error_OutputConflict, Resources.Error_Term, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    TxtOutputPath.Focus();
+                    TxtOutputAssembly.Focus();
 
                     return;
                 }
             }
 
-            if (File.Exists(TxtOutputPath.Text))
+            if (File.Exists(TxtOutputAssembly.Text))
             {
                 try
                 {
-                    FileInfo objFile = new FileInfo(TxtOutputPath.Text);
+                    FileInfo objFile = new FileInfo(TxtOutputAssembly.Text);
                     objFile.Attributes = FileAttributes.Normal;
                     objFile.Delete();
                     objFile = null;
@@ -508,7 +516,7 @@ namespace ILMergeGui
             //3=WinExe
 
             Console.WriteLine("ILMerge.{0}={1}", "TargetKind", DynaInvoke.SetProperty<Int32>(iLMergePath, ilMerge, "TargetKind", 2));
-            Console.WriteLine("ILMerge.{0}={1}", "OutputFile", DynaInvoke.SetProperty<String>(iLMergePath, ilMerge, "OutputFile", TxtOutputPath.Text));
+            Console.WriteLine("ILMerge.{0}={1}", "OutputFile", DynaInvoke.SetProperty<String>(iLMergePath, ilMerge, "OutputFile", TxtOutputAssembly.Text));
 
             Console.WriteLine("ILMerge.{0}(", "SetInputAssemblies");
             foreach (String asm in arrAssemblies)
@@ -549,8 +557,6 @@ namespace ILMergeGui
             BoxOptions.Enabled = Enable;
             BoxOutput.Enabled = Enable;
             ButMerge.Enabled = Enable;
-            ImgLoading.Visible = !Enable;
-            ImgLoading.Enabled = !Enable;
 
             Application.DoEvents();
         }
@@ -570,8 +576,36 @@ namespace ILMergeGui
                     @"Microsoft\ILMerge\ILMerge.exe");
             }
 
-            CboDebug.SelectedIndex = 1;
-            CboTargetFramework.Items.Clear();
+            RestoreDefaults();
+
+            foreach (String arg in Environment.GetCommandLineArgs())
+            {
+                if (!arg.StartsWith("/") &&
+                    File.Exists(arg) &&
+                    Path.GetExtension(arg).Equals(".xml", StringComparison.OrdinalIgnoreCase))
+                {
+                    RestoreSettings(arg);
+                    break;
+                }
+            }
+
+            foreach (String arg in Environment.GetCommandLineArgs())
+            {
+                if (arg.Equals("/Merge", StringComparison.OrdinalIgnoreCase))
+                {
+                    ButMerge.PerformClick();
+                }
+            }
+        }
+
+        private void RestoreDefaults()
+        {
+            ListAssembly.Items.Clear();
+            Primary = String.Empty;
+            LblPrimaryAssembly.Text = String.Empty;
+
+            //Not allowed woth a DataSource.
+            //CboTargetFramework.Items.Clear();
 
             frameworks = InstalledDotNetVersions();
             foreach (DotNet framework in frameworks)
@@ -590,6 +624,18 @@ namespace ILMergeGui
 
             CboTargetFramework.DataSource = frameworks;
             CboTargetFramework.SelectedIndex = frameworks.Count - 1;
+
+            CboDebug.SelectedIndex = 1;
+            
+            //ChkCopyAttributes.Checked = (Boolean)Settings.Default.Properties["CopyAttributes"].DefaultValue;
+            ChkCopyAttributes.Checked = true;
+            ChkUnionDuplicates.Checked = false;
+            ChkSignKeyFile.Checked = false;
+            ChkDelayedSign.Checked = false;
+
+            TxtKeyFile.Text = String.Empty;
+            TxtLogFile.Text = String.Empty;
+            TxtOutputAssembly.Text = String.Empty;
         }
 
         private void LblPrimaryAssembly_TextChanged(object sender, EventArgs e)
@@ -687,7 +733,7 @@ namespace ILMergeGui
                 ChkGenerateLog.Checked = false;
             }
 
-            if (TxtOutputPath.Text.Length < 5)
+            if (TxtOutputAssembly.Text.Length < 5)
             {
                 SelectOutputFile();
             }
@@ -794,15 +840,15 @@ namespace ILMergeGui
                 openFile1.FileName = Path.GetFileName(ListAssembly.SelectedItem.ToString());
             }
 
-            if (TxtOutputPath.Text.Length > 3)
+            if (TxtOutputAssembly.Text.Length > 3)
             {
-                openFile1.InitialDirectory = Path.GetDirectoryName(TxtOutputPath.Text);
+                openFile1.InitialDirectory = Path.GetDirectoryName(TxtOutputAssembly.Text);
             }
 
             if (openFile1.ShowDialog() == DialogResult.OK)
             {
-                TxtOutputPath.Text = openFile1.FileName;
-                TxtOutputPath.Focus();
+                TxtOutputAssembly.Text = openFile1.FileName;
+                TxtOutputAssembly.Focus();
             }
         }
 
@@ -863,7 +909,7 @@ namespace ILMergeGui
 
                 MessageBox.Show(Resources.Error_MergeException + Environment.NewLine + Environment.NewLine + Message, Resources.Error_Term, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            else if (!File.Exists(TxtOutputPath.Text) || new FileInfo(TxtOutputPath.Text).Length == 0)
+            else if (!File.Exists(TxtOutputAssembly.Text) || new FileInfo(TxtOutputAssembly.Text).Length == 0)
             {
                 MessageBox.Show(Resources.Error_CantMerge, Resources.Error_Term, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -936,5 +982,128 @@ namespace ILMergeGui
         }
 
         #endregion Nested Types
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveSettings(@"c:\temp\ILMerge.xml");
+        }
+
+        private void SaveSettings(String filename)
+        {
+            XDocument doc = new XDocument(new XElement("Settings"));
+
+            //1) Save Switches.
+            doc.Root.Add(
+                new XComment("Switches"),
+                new XElement("CopyAttributes", new XAttribute("Enabled", ChkCopyAttributes.Checked)),
+                new XElement("UnionDuplicates", new XAttribute("Enabled", ChkUnionDuplicates.Checked)),
+                new XElement("Debug", new XAttribute("Enabled", CboDebug.SelectedIndex)));
+
+            //2) Save Signing.
+            doc.Root.Add(
+                new XComment("Signing"),
+                    new XElement("Sign",
+                    new XAttribute("Enabled", ChkSignKeyFile.Checked),
+                    new XAttribute("Delay", ChkDelayedSign.Checked),
+                    new XText(TxtKeyFile.Text)
+                ));
+
+            //3) Save Logging.
+            doc.Root.Add(
+                new XComment("Logging"),
+                    new XElement("Log",
+                    new XAttribute("Enabled", ChkGenerateLog.Checked),
+                    new XText(TxtLogFile.Text)
+                ));
+
+            //4) Save Assemblies.
+            XElement assemblies = new XElement("Assemblies");
+            foreach (Object item in ListAssembly.Items)
+            {
+                assemblies.Add(new XElement("Assembly", item.ToString()));
+            }
+            assemblies.Add(
+                new XElement("Primary", Primary));
+
+            doc.Root.Add(
+                new XComment("Assemblies"),
+                assemblies);
+
+            //5) Save Output.
+            doc.Root.Add(
+                new XComment("Output"),
+                new XElement("OutputAssembly", TxtOutputAssembly.Text));
+
+            //6) Save Framework.
+            if (CboTargetFramework.SelectedIndex != -1)
+            {
+                DotNet framework = (DotNet)(CboTargetFramework.SelectedItem);
+                doc.Root.Add(new XElement("Framework", framework.name));
+            }
+
+            doc.Save(filename);
+
+            this.Text = String.Format("{0} - [{1}]",
+                Application.ProductName,
+                Path.GetFileName(filename));
+        }
+
+        private void openToolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            RestoreSettings(@"c:\temp\ILMerge.xml");
+        }
+
+        private void RestoreSettings(String filename)
+        {
+            XDocument doc = XDocument.Load(filename);
+
+            this.Text = String.Format("{0} - [{1}]",
+                Application.ProductName,
+                Path.GetFileName(filename));
+
+            //1) Restore Switches.
+            ChkCopyAttributes.Checked = Boolean.Parse(doc.Root.Element("CopyAttributes").Attribute("Enabled").Value);
+            ChkUnionDuplicates.Checked = Boolean.Parse(doc.Root.Element("UnionDuplicates").Attribute("Enabled").Value);
+            CboDebug.SelectedIndex = Int32.Parse(doc.Root.Element("Debug").Attribute("Enabled").Value);
+
+            //2) Restore Signing.
+            ChkSignKeyFile.Checked = Boolean.Parse(doc.Root.Element("Sign").Attribute("Enabled").Value);
+            ChkDelayedSign.Checked = Boolean.Parse(doc.Root.Element("Sign").Attribute("Delay").Value);
+            TxtKeyFile.Text = doc.Root.Element("Sign").Value;
+
+            //3) Restore Logging.
+            ChkGenerateLog.Checked = Boolean.Parse(doc.Root.Element("Log").Attribute("Enabled").Value);
+            TxtLogFile.Text = doc.Root.Element("Log").Value;
+
+            //4) Restore Assemblies.
+            ListAssembly.Items.Clear();
+            foreach (XElement assembly in doc.Root.Element("Assemblies").Elements("Assembly"))
+            {
+                ListAssembly.Items.Add(assembly.Value);
+            }
+            Primary = doc.Root.Element("Assemblies").Element("Primary").Value;
+            LblPrimaryAssembly.Text = Path.GetFileName(Primary);
+
+            //5) Restore Output.
+            TxtOutputAssembly.Text = doc.Root.Element("OutputAssembly").Value;
+
+            //6) Restore Framework.
+            String framework = doc.Root.Element("Framework").Value;
+            foreach (Object o in CboTargetFramework.Items)
+            {
+                if (((DotNet)o).name.Equals(framework))
+                {
+                    CboTargetFramework.SelectedItem = o;
+                    break;
+                }
+            }
+        }
+
+        private void newToolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            this.Text = Application.ProductName;
+
+            RestoreDefaults();
+        }
     }
 }

@@ -69,13 +69,6 @@ namespace ILMergeGui.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap Donate {
-            get {
-                object obj = ResourceManager.GetObject("Donate", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
         /// <summary>
         ///   Looks up a localized string similar to Done.
         /// </summary>
@@ -158,13 +151,6 @@ namespace ILMergeGui.Properties {
         internal static System.Drawing.Bitmap IconFolder {
             get {
                 object obj = ResourceManager.GetObject("IconFolder", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap IconLoading {
-            get {
-                object obj = ResourceManager.GetObject("IconLoading", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
