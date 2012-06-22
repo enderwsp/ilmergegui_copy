@@ -3,7 +3,7 @@
     /// <summary>
     /// The mainform.
     /// </summary>
-    partial class Form1
+    partial class Mainform
     {
         /// <summary>
         /// Required designer variable.
@@ -35,19 +35,18 @@
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.LinkILMerge = new System.Windows.Forms.LinkLabel();
             this.ChkSignKeyFile = new System.Windows.Forms.CheckBox();
-            this.ListAssembly = new System.Windows.Forms.ListBox();
-            this.ButAddFile = new System.Windows.Forms.Button();
+            this.btnAddFile = new System.Windows.Forms.Button();
             this.ChkGenerateLog = new System.Windows.Forms.CheckBox();
             this.ChkDelayedSign = new System.Windows.Forms.CheckBox();
-            this.ButLogFile = new System.Windows.Forms.Button();
+            this.btnLogFile = new System.Windows.Forms.Button();
             this.ChkUnionDuplicates = new System.Windows.Forms.CheckBox();
             this.TxtLogFile = new System.Windows.Forms.TextBox();
-            this.ButKeyFile = new System.Windows.Forms.Button();
+            this.btnKeyFile = new System.Windows.Forms.Button();
             this.ChkCopyAttributes = new System.Windows.Forms.CheckBox();
             this.TxtKeyFile = new System.Windows.Forms.TextBox();
             this.TxtOutputAssembly = new System.Windows.Forms.TextBox();
-            this.ButOutputPath = new System.Windows.Forms.Button();
-            this.ButMerge = new System.Windows.Forms.Button();
+            this.btnOutputPath = new System.Windows.Forms.Button();
+            this.btnMerge = new System.Windows.Forms.Button();
             this.CboDebug = new System.Windows.Forms.ComboBox();
             this.CboTargetFramework = new System.Windows.Forms.ComboBox();
             this.WorkerILMerge = new System.ComponentModel.BackgroundWorker();
@@ -62,12 +61,12 @@
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuFileNew = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.openToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuFileSave = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
-            this.exitToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuFileExit = new System.Windows.Forms.ToolStripMenuItem();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -87,6 +86,10 @@
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.openToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ListAssembly = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.label1 = new System.Windows.Forms.Label();
             this.BoxOutput.SuspendLayout();
             this.BoxOptions.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -106,7 +109,7 @@
             this.LinkILMerge.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.LinkILMerge.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
             this.LinkILMerge.LinkColor = System.Drawing.SystemColors.HotTrack;
-            this.LinkILMerge.Location = new System.Drawing.Point(309, 442);
+            this.LinkILMerge.Location = new System.Drawing.Point(309, 535);
             this.LinkILMerge.Name = "LinkILMerge";
             this.LinkILMerge.Size = new System.Drawing.Size(263, 13);
             this.LinkILMerge.TabIndex = 37;
@@ -128,44 +131,22 @@
             this.ChkSignKeyFile.UseVisualStyleBackColor = true;
             this.ChkSignKeyFile.CheckedChanged += new System.EventHandler(this.ChkSignKeyFile_CheckedChanged);
             // 
-            // ListAssembly
+            // btnAddFile
             // 
-            this.ListAssembly.AllowDrop = true;
-            this.ListAssembly.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ListAssembly.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ListAssembly.FormattingEnabled = true;
-            this.ListAssembly.HorizontalScrollbar = true;
-            this.ListAssembly.IntegralHeight = false;
-            this.ListAssembly.Location = new System.Drawing.Point(6, 16);
-            this.ListAssembly.Name = "ListAssembly";
-            this.ListAssembly.Size = new System.Drawing.Size(548, 87);
-            this.ListAssembly.Sorted = true;
-            this.ListAssembly.TabIndex = 32;
-            this.ToolTips.SetToolTip(this.ListAssembly, "Assemblies to be merged");
-            this.ListAssembly.SelectedIndexChanged += new System.EventHandler(this.ListAssembly_SelectedIndexChanged);
-            this.ListAssembly.Format += new System.Windows.Forms.ListControlConvertEventHandler(this.ListAssembly_Format);
-            this.ListAssembly.DragDrop += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragDrop);
-            this.ListAssembly.DragEnter += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragEnter);
-            this.ListAssembly.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListAssembly_KeyDown);
-            // 
-            // ButAddFile
-            // 
-            this.ButAddFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButAddFile.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ButAddFile.Image = global::ILMergeGui.Properties.Resources.IconAdd;
-            this.ButAddFile.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.ButAddFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.ButAddFile.Location = new System.Drawing.Point(442, 109);
-            this.ButAddFile.Name = "ButAddFile";
-            this.ButAddFile.Size = new System.Drawing.Size(112, 23);
-            this.ButAddFile.TabIndex = 33;
-            this.ButAddFile.Text = "Add assemblies";
-            this.ButAddFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.ToolTips.SetToolTip(this.ButAddFile, "Click to select and add assemblies to the list");
-            this.ButAddFile.UseVisualStyleBackColor = true;
-            this.ButAddFile.Click += new System.EventHandler(this.ButAddFile_Click);
+            this.btnAddFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddFile.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddFile.Image = global::ILMergeGui.Properties.Resources.IconAdd;
+            this.btnAddFile.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnAddFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnAddFile.Location = new System.Drawing.Point(442, 202);
+            this.btnAddFile.Name = "btnAddFile";
+            this.btnAddFile.Size = new System.Drawing.Size(112, 23);
+            this.btnAddFile.TabIndex = 33;
+            this.btnAddFile.Text = "Add assemblies";
+            this.btnAddFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.ToolTips.SetToolTip(this.btnAddFile, "Click to select and add assemblies to the list");
+            this.btnAddFile.UseVisualStyleBackColor = true;
+            this.btnAddFile.Click += new System.EventHandler(this.btnAddFile_Click);
             // 
             // ChkGenerateLog
             // 
@@ -182,6 +163,7 @@
             // ChkDelayedSign
             // 
             this.ChkDelayedSign.AutoSize = true;
+            this.ChkDelayedSign.Enabled = false;
             this.ChkDelayedSign.Location = new System.Drawing.Point(126, 49);
             this.ChkDelayedSign.Name = "ChkDelayedSign";
             this.ChkDelayedSign.Size = new System.Drawing.Size(87, 17);
@@ -190,20 +172,20 @@
             this.ToolTips.SetToolTip(this.ChkDelayedSign, "Use delayed sign");
             this.ChkDelayedSign.UseVisualStyleBackColor = true;
             // 
-            // ButLogFile
+            // btnLogFile
             // 
-            this.ButLogFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButLogFile.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ButLogFile.Enabled = false;
-            this.ButLogFile.Image = global::ILMergeGui.Properties.Resources.IconFolder;
-            this.ButLogFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.ButLogFile.Location = new System.Drawing.Point(529, 119);
-            this.ButLogFile.Name = "ButLogFile";
-            this.ButLogFile.Size = new System.Drawing.Size(25, 21);
-            this.ButLogFile.TabIndex = 17;
-            this.ToolTips.SetToolTip(this.ButLogFile, "Click to select a log path");
-            this.ButLogFile.UseVisualStyleBackColor = true;
-            this.ButLogFile.Click += new System.EventHandler(this.ButLogFile_Click);
+            this.btnLogFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogFile.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLogFile.Enabled = false;
+            this.btnLogFile.Image = global::ILMergeGui.Properties.Resources.IconFolder;
+            this.btnLogFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnLogFile.Location = new System.Drawing.Point(529, 116);
+            this.btnLogFile.Name = "btnLogFile";
+            this.btnLogFile.Size = new System.Drawing.Size(25, 23);
+            this.btnLogFile.TabIndex = 17;
+            this.ToolTips.SetToolTip(this.btnLogFile, "Click to select a log path");
+            this.btnLogFile.UseVisualStyleBackColor = true;
+            this.btnLogFile.Click += new System.EventHandler(this.btnLogFile_Click);
             // 
             // ChkUnionDuplicates
             // 
@@ -230,20 +212,20 @@
             this.TxtLogFile.TabIndex = 15;
             this.ToolTips.SetToolTip(this.TxtLogFile, "Path to the log file");
             // 
-            // ButKeyFile
+            // btnKeyFile
             // 
-            this.ButKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButKeyFile.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ButKeyFile.Enabled = false;
-            this.ButKeyFile.Image = global::ILMergeGui.Properties.Resources.IconFolder;
-            this.ButKeyFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.ButKeyFile.Location = new System.Drawing.Point(529, 68);
-            this.ButKeyFile.Name = "ButKeyFile";
-            this.ButKeyFile.Size = new System.Drawing.Size(25, 21);
-            this.ButKeyFile.TabIndex = 11;
-            this.ToolTips.SetToolTip(this.ButKeyFile, "Click to select a key file");
-            this.ButKeyFile.UseVisualStyleBackColor = true;
-            this.ButKeyFile.Click += new System.EventHandler(this.ButKeyFile_Click);
+            this.btnKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnKeyFile.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnKeyFile.Enabled = false;
+            this.btnKeyFile.Image = global::ILMergeGui.Properties.Resources.IconFolder;
+            this.btnKeyFile.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnKeyFile.Location = new System.Drawing.Point(529, 66);
+            this.btnKeyFile.Name = "btnKeyFile";
+            this.btnKeyFile.Size = new System.Drawing.Size(25, 23);
+            this.btnKeyFile.TabIndex = 11;
+            this.ToolTips.SetToolTip(this.btnKeyFile, "Click to select a key file");
+            this.btnKeyFile.UseVisualStyleBackColor = true;
+            this.btnKeyFile.Click += new System.EventHandler(this.btnKeyFile_Click);
             // 
             // ChkCopyAttributes
             // 
@@ -285,37 +267,37 @@
             this.TxtOutputAssembly.TabIndex = 2;
             this.ToolTips.SetToolTip(this.TxtOutputAssembly, "Path to the output generated assembly");
             // 
-            // ButOutputPath
+            // btnOutputPath
             // 
-            this.ButOutputPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButOutputPath.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ButOutputPath.Image = global::ILMergeGui.Properties.Resources.IconFolder;
-            this.ButOutputPath.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.ButOutputPath.Location = new System.Drawing.Point(529, 37);
-            this.ButOutputPath.Name = "ButOutputPath";
-            this.ButOutputPath.Size = new System.Drawing.Size(25, 21);
-            this.ButOutputPath.TabIndex = 4;
-            this.ToolTips.SetToolTip(this.ButOutputPath, "Click to select the path to the output assembly");
-            this.ButOutputPath.UseVisualStyleBackColor = true;
-            this.ButOutputPath.Click += new System.EventHandler(this.ButOutputPath_Click);
+            this.btnOutputPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOutputPath.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnOutputPath.Image = global::ILMergeGui.Properties.Resources.IconFolder;
+            this.btnOutputPath.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnOutputPath.Location = new System.Drawing.Point(529, 35);
+            this.btnOutputPath.Name = "btnOutputPath";
+            this.btnOutputPath.Size = new System.Drawing.Size(25, 23);
+            this.btnOutputPath.TabIndex = 4;
+            this.ToolTips.SetToolTip(this.btnOutputPath, "Click to select the path to the output assembly");
+            this.btnOutputPath.UseVisualStyleBackColor = true;
+            this.btnOutputPath.Click += new System.EventHandler(this.btnOutputPath_Click);
             // 
-            // ButMerge
+            // btnMerge
             // 
-            this.ButMerge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButMerge.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ButMerge.Enabled = false;
-            this.ButMerge.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ButMerge.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.ButMerge.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.ButMerge.Location = new System.Drawing.Point(448, 72);
-            this.ButMerge.Name = "ButMerge";
-            this.ButMerge.Size = new System.Drawing.Size(106, 23);
-            this.ButMerge.TabIndex = 10;
-            this.ButMerge.Text = "Merge!";
-            this.ButMerge.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.ToolTips.SetToolTip(this.ButMerge, "Click to start merging");
-            this.ButMerge.UseVisualStyleBackColor = true;
-            this.ButMerge.Click += new System.EventHandler(this.ButMerge_Click);
+            this.btnMerge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMerge.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnMerge.Enabled = false;
+            this.btnMerge.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMerge.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnMerge.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnMerge.Location = new System.Drawing.Point(448, 72);
+            this.btnMerge.Name = "btnMerge";
+            this.btnMerge.Size = new System.Drawing.Size(106, 23);
+            this.btnMerge.TabIndex = 10;
+            this.btnMerge.Text = "Merge!";
+            this.btnMerge.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.ToolTips.SetToolTip(this.btnMerge, "Click to start merging");
+            this.btnMerge.UseVisualStyleBackColor = true;
+            this.btnMerge.Click += new System.EventHandler(this.btnMerge_Click);
             // 
             // CboDebug
             // 
@@ -357,7 +339,7 @@
             this.LblPrimaryAssembly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LblPrimaryAssembly.AutoSize = true;
             this.LblPrimaryAssembly.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.LblPrimaryAssembly.Location = new System.Drawing.Point(108, 114);
+            this.LblPrimaryAssembly.Location = new System.Drawing.Point(108, 207);
             this.LblPrimaryAssembly.Name = "LblPrimaryAssembly";
             this.LblPrimaryAssembly.Size = new System.Drawing.Size(16, 13);
             this.LblPrimaryAssembly.TabIndex = 30;
@@ -369,7 +351,7 @@
             this.LblPrimaryAssemblyInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LblPrimaryAssemblyInfo.AutoSize = true;
             this.LblPrimaryAssemblyInfo.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.LblPrimaryAssemblyInfo.Location = new System.Drawing.Point(6, 114);
+            this.LblPrimaryAssemblyInfo.Location = new System.Drawing.Point(6, 207);
             this.LblPrimaryAssemblyInfo.Name = "LblPrimaryAssemblyInfo";
             this.LblPrimaryAssemblyInfo.Size = new System.Drawing.Size(90, 13);
             this.LblPrimaryAssemblyInfo.TabIndex = 31;
@@ -381,13 +363,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.BoxOutput.Controls.Add(this.LblOutputPath);
             this.BoxOutput.Controls.Add(this.TxtOutputAssembly);
-            this.BoxOutput.Controls.Add(this.ButOutputPath);
-            this.BoxOutput.Controls.Add(this.ButMerge);
+            this.BoxOutput.Controls.Add(this.btnOutputPath);
+            this.BoxOutput.Controls.Add(this.btnMerge);
             this.BoxOutput.Controls.Add(this.CboDebug);
             this.BoxOutput.Controls.Add(this.LblDebug);
             this.BoxOutput.Controls.Add(this.LblTargetFramework);
             this.BoxOutput.Controls.Add(this.CboTargetFramework);
-            this.BoxOutput.Location = new System.Drawing.Point(12, 329);
+            this.BoxOutput.Location = new System.Drawing.Point(12, 422);
             this.BoxOutput.Name = "BoxOutput";
             this.BoxOutput.Size = new System.Drawing.Size(560, 101);
             this.BoxOutput.TabIndex = 35;
@@ -431,13 +413,13 @@
             this.BoxOptions.Controls.Add(this.ChkSignKeyFile);
             this.BoxOptions.Controls.Add(this.ChkGenerateLog);
             this.BoxOptions.Controls.Add(this.ChkDelayedSign);
-            this.BoxOptions.Controls.Add(this.ButLogFile);
+            this.BoxOptions.Controls.Add(this.btnLogFile);
             this.BoxOptions.Controls.Add(this.TxtKeyFile);
             this.BoxOptions.Controls.Add(this.ChkUnionDuplicates);
             this.BoxOptions.Controls.Add(this.TxtLogFile);
-            this.BoxOptions.Controls.Add(this.ButKeyFile);
+            this.BoxOptions.Controls.Add(this.btnKeyFile);
             this.BoxOptions.Controls.Add(this.ChkCopyAttributes);
-            this.BoxOptions.Location = new System.Drawing.Point(12, 171);
+            this.BoxOptions.Location = new System.Drawing.Point(12, 264);
             this.BoxOptions.Name = "BoxOptions";
             this.BoxOptions.Size = new System.Drawing.Size(560, 152);
             this.BoxOptions.TabIndex = 34;
@@ -452,7 +434,7 @@
             this.linkLabel1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.linkLabel1.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
             this.linkLabel1.LinkColor = System.Drawing.SystemColors.HotTrack;
-            this.linkLabel1.Location = new System.Drawing.Point(413, 460);
+            this.linkLabel1.Location = new System.Drawing.Point(413, 553);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(159, 13);
             this.linkLabel1.TabIndex = 36;
@@ -473,52 +455,53 @@
             // fileToolStripMenuItem3
             // 
             this.fileToolStripMenuItem3.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem3,
+            this.mnuFileNew,
             this.toolStripSeparator6,
-            this.openToolStripMenuItem3,
-            this.saveToolStripMenuItem2,
+            this.mnuFileOpen,
+            this.mnuFileSave,
             this.toolStripSeparator7,
-            this.exitToolStripMenuItem2});
+            this.mnuFileExit});
             this.fileToolStripMenuItem3.Name = "fileToolStripMenuItem3";
             this.fileToolStripMenuItem3.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem3.Text = "File";
             // 
-            // newToolStripMenuItem3
+            // mnuFileNew
             // 
-            this.newToolStripMenuItem3.Name = "newToolStripMenuItem3";
-            this.newToolStripMenuItem3.Size = new System.Drawing.Size(152, 22);
-            this.newToolStripMenuItem3.Text = "New";
-            this.newToolStripMenuItem3.Click += new System.EventHandler(this.newToolStripMenuItem3_Click);
+            this.mnuFileNew.Name = "mnuFileNew";
+            this.mnuFileNew.Size = new System.Drawing.Size(103, 22);
+            this.mnuFileNew.Text = "New";
+            this.mnuFileNew.Click += new System.EventHandler(this.mnuFileNew_Click);
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
             this.toolStripSeparator6.Size = new System.Drawing.Size(100, 6);
             // 
-            // openToolStripMenuItem3
+            // mnuFileOpen
             // 
-            this.openToolStripMenuItem3.Name = "openToolStripMenuItem3";
-            this.openToolStripMenuItem3.Size = new System.Drawing.Size(103, 22);
-            this.openToolStripMenuItem3.Text = "Open";
-            this.openToolStripMenuItem3.Click += new System.EventHandler(this.openToolStripMenuItem3_Click);
+            this.mnuFileOpen.Name = "mnuFileOpen";
+            this.mnuFileOpen.Size = new System.Drawing.Size(103, 22);
+            this.mnuFileOpen.Text = "Open";
+            this.mnuFileOpen.Click += new System.EventHandler(this.mnuFileOpen_Click);
             // 
-            // saveToolStripMenuItem2
+            // mnuFileSave
             // 
-            this.saveToolStripMenuItem2.Name = "saveToolStripMenuItem2";
-            this.saveToolStripMenuItem2.Size = new System.Drawing.Size(103, 22);
-            this.saveToolStripMenuItem2.Text = "Save";
-            this.saveToolStripMenuItem2.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            this.mnuFileSave.Name = "mnuFileSave";
+            this.mnuFileSave.Size = new System.Drawing.Size(103, 22);
+            this.mnuFileSave.Text = "Save";
+            this.mnuFileSave.Click += new System.EventHandler(this.mnuFileSave_Click);
             // 
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
             this.toolStripSeparator7.Size = new System.Drawing.Size(100, 6);
             // 
-            // exitToolStripMenuItem2
+            // mnuFileExit
             // 
-            this.exitToolStripMenuItem2.Name = "exitToolStripMenuItem2";
-            this.exitToolStripMenuItem2.Size = new System.Drawing.Size(103, 22);
-            this.exitToolStripMenuItem2.Text = "Exit";
+            this.mnuFileExit.Name = "mnuFileExit";
+            this.mnuFileExit.Size = new System.Drawing.Size(103, 22);
+            this.mnuFileExit.Text = "Exit";
+            this.mnuFileExit.Click += new System.EventHandler(this.mnuFileExit_Click);
             // 
             // fileToolStripMenuItem
             // 
@@ -543,7 +526,7 @@
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveToolStripMenuItem.Text = "Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.mnuFileSave_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -589,7 +572,7 @@
             this.saveToolStripMenuItem1.Name = "saveToolStripMenuItem1";
             this.saveToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.saveToolStripMenuItem1.Text = "Save";
-            this.saveToolStripMenuItem1.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            this.saveToolStripMenuItem1.Click += new System.EventHandler(this.mnuFileSave_Click);
             // 
             // toolStripSeparator4
             // 
@@ -631,21 +614,64 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.ListAssembly);
-            this.groupBox1.Controls.Add(this.ButAddFile);
+            this.groupBox1.Controls.Add(this.btnAddFile);
             this.groupBox1.Controls.Add(this.LblPrimaryAssemblyInfo);
             this.groupBox1.Controls.Add(this.LblPrimaryAssembly);
             this.groupBox1.Location = new System.Drawing.Point(12, 27);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(560, 138);
+            this.groupBox1.Size = new System.Drawing.Size(560, 231);
             this.groupBox1.TabIndex = 39;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Assemblies to merge:";
             // 
-            // Form1
+            // ListAssembly
+            // 
+            this.ListAssembly.Activation = System.Windows.Forms.ItemActivation.OneClick;
+            this.ListAssembly.AllowDrop = true;
+            this.ListAssembly.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ListAssembly.CheckBoxes = true;
+            this.ListAssembly.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.ListAssembly.FullRowSelect = true;
+            this.ListAssembly.GridLines = true;
+            this.ListAssembly.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.ListAssembly.HideSelection = false;
+            this.ListAssembly.Location = new System.Drawing.Point(3, 16);
+            this.ListAssembly.Name = "ListAssembly";
+            this.ListAssembly.Size = new System.Drawing.Size(554, 180);
+            this.ListAssembly.TabIndex = 34;
+            this.ToolTips.SetToolTip(this.ListAssembly, "Assemblies to be merged");
+            this.ListAssembly.UseCompatibleStateImageBehavior = false;
+            this.ListAssembly.View = System.Windows.Forms.View.Details;
+            this.ListAssembly.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.ListAssembly_ItemCheck);
+            this.ListAssembly.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.ListAssembly_ItemChecked);
+            this.ListAssembly.DragDrop += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragDrop);
+            this.ListAssembly.DragEnter += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragEnter);
+            this.ListAssembly.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListAssembly_KeyDown);
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Assembly";
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 535);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(35, 13);
+            this.label1.TabIndex = 40;
+            this.label1.Text = "label1";
+            // 
+            // Mainform
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 482);
+            this.ClientSize = new System.Drawing.Size(584, 575);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.LinkILMerge);
             this.Controls.Add(this.linkLabel1);
@@ -655,9 +681,11 @@
             this.DoubleBuffered = true;
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(440, 520);
-            this.Name = "Form1";
+            this.Name = "Mainform";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "ILMerge-GUI";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.Mainform_Load);
+            this.Shown += new System.EventHandler(this.Mainform_Shown);
             this.BoxOutput.ResumeLayout(false);
             this.BoxOutput.PerformLayout();
             this.BoxOptions.ResumeLayout(false);
@@ -676,19 +704,18 @@
         internal System.Windows.Forms.ToolTip ToolTips;
         internal System.Windows.Forms.LinkLabel LinkILMerge;
         internal System.Windows.Forms.CheckBox ChkSignKeyFile;
-        internal System.Windows.Forms.ListBox ListAssembly;
-        internal System.Windows.Forms.Button ButAddFile;
+        internal System.Windows.Forms.Button btnAddFile;
         internal System.Windows.Forms.CheckBox ChkGenerateLog;
         internal System.Windows.Forms.CheckBox ChkDelayedSign;
-        internal System.Windows.Forms.Button ButLogFile;
+        internal System.Windows.Forms.Button btnLogFile;
         internal System.Windows.Forms.CheckBox ChkUnionDuplicates;
         internal System.Windows.Forms.TextBox TxtLogFile;
-        internal System.Windows.Forms.Button ButKeyFile;
+        internal System.Windows.Forms.Button btnKeyFile;
         internal System.Windows.Forms.CheckBox ChkCopyAttributes;
         internal System.Windows.Forms.TextBox TxtKeyFile;
         internal System.Windows.Forms.TextBox TxtOutputAssembly;
-        internal System.Windows.Forms.Button ButOutputPath;
-        internal System.Windows.Forms.Button ButMerge;
+        internal System.Windows.Forms.Button btnOutputPath;
+        internal System.Windows.Forms.Button btnMerge;
         internal System.Windows.Forms.ComboBox CboDebug;
         internal System.Windows.Forms.ComboBox CboTargetFramework;
         internal System.ComponentModel.BackgroundWorker WorkerILMerge;
@@ -721,13 +748,17 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem mnuFileNew;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem mnuFileOpen;
+        private System.Windows.Forms.ToolStripMenuItem mnuFileSave;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem mnuFileExit;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.ListView ListAssembly;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.Label label1;
 
     }
 }

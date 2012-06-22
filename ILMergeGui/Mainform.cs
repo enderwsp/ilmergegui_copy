@@ -21,7 +21,7 @@
  *                  - Added autocompletion to editoboxes.
  *                  - Disable merge button when only a single assembly is present.
  *                  - Show logfile (if present and generated) after merge.
- *                  - Debugged DynaInvoke/
+ *                  - Debugged DynaInvoke.
  *                  - Renamed methods in DynaInvoke.
  *                  - Disabled Slow Method in DynaInvoke.
  *                  - ILMerge path changes according to x86 or x64 architecture.
@@ -33,6 +33,17 @@
  *                  - Debugged MakeRelativePath (same paths returned empty string).
  * 05-05-2012 - veg - Added menubar
  *                  - Added saving and restoring of settings in xml format.
+ * 21-06-2012 - veg - Improved ILMerge.exe searching (added path and assembly registry).
+ *                  - Swapped ListBox for ListView.
+ *                  - Added transparent background watermark image.
+ *                  - Changed logic around formatting the display values.
+ *                    Reformat them all using the ListViewItem Tag property as storage for original filenames.
+ *                  - Change code to use Tag property for filename (TEST!).
+ * 22-06-2012 - veg - Added support for dropping (sub) directories.
+ *                  - Added checkboxes for primary assembly instead of selected item.
+ *                  - Refactored code a bit.
+ *                  - Added version column.
+ *                  - Enabled AutoVersionIncrement on Rebuild.
  * ----------   ---   ------------------------------------------------------------------------------- */
 
 #endregion Header
@@ -42,23 +53,30 @@ namespace ILMergeGui
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Drawing;
     using System.IO;
+    using System.Reflection;
+    using System.Runtime.InteropServices;
     using System.Windows.Forms;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Linq;
 
     using ILMergeGui.Properties;
-    using Microsoft.Win32;
-    using System.Drawing;
 
-    //! TODO Make sure dialogs are cleaned before re-use
-    //! TODO Add commandline options (cfg & /Merge).
-    //! TODO Generate ILMerge.exe Commandline 
-    //
-    //! TODO Find out what ILMerge commandline options actually mean.
-    //
-    //! TODO Detect CF Framework (C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework)
-    //! TODO Detect MicroFramework (MicroFrameworkPK_v4_1).
+    using Microsoft.Win32;
+
+    //! TODO Debug ILMerge call (Tag property).
+    //! TODO Restore Groups on Xml Restore.
+    //! TODO Watermark won't remove.
+
+    // TODO Make sure dialogs are cleaned before re-use.
+    // TODO Add commandline options (cfg & /Merge).
+    // TODO Generate ILMerge.exe Commandline.
+    // TODO Find out what ILMerge commandline options actually mean.
+
+    // TODO Detect CF Framework (C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework)
+    // TODO Detect MicroFramework (MicroFrameworkPK_v4_1).
     //       HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\10.0_Config\MSBuild\SafeImports
     //       HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\Folders (scan for keys with \ReferenceAssembly\Micrososft\Framework)
     //       HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components\14A3CECB2D8CDD549B5B500B9419DD8B   06CB6B5FEBFB8C64592234F1A39D5C3E
@@ -68,17 +86,17 @@ namespace ILMergeGui
     //
     //       x86 = C:\Windows\Microsoft.NET\Framework
     //       x64 = C:\Windows\Microsoft.NET\Framework64
-    //
-    //! TODO Windows Communication Foundation
-    //! TODO Windows Presentation Foundation
-    //! TODO Windows Workflow Foundation
-    //! TODO Advanced Settings?
-    //! TODO List special features under v3.0 as Windows Workflow Foundationn.
+
+    // TODO Windows Communication Foundation
+    // TODO Windows Presentation Foundation
+    // TODO Windows Workflow Foundation
+    // TODO Advanced Settings?
+    // TODO List special features under v3.0 as Windows Workflow Foundationn.
+
     //! TODO Support for Version 1/1.1
-    //
-    //! TODO http://stackoverflow.com/questions/199080/how-to-detect-what-net-framework-versions-and-service-packs-are-installed
     //! TODO http://support.microsoft.com/kb/318785/en-us
-    //
+
+    //! Reflected methods from ilMerge.exe assembly:
     //public bool AllowMultipleAssemblyLevelAttributes { set; get; }
     //public bool AllowWildCards { set; get; }
     //public bool AllowZeroPeKind { set; get; }
@@ -95,9 +113,14 @@ namespace ILMergeGui
     //public void AllowDuplicateType(string typeName)
     //public void SetSearchDirectories(string[] dirs)
 
-    public partial class Form1 : Form
+    public partial class Mainform : Form
     {
         #region Fields
+
+        /// <summary>
+        /// Used for ListView.
+        /// </summary>
+        private const uint CLR_NONE = 0xFFFFFFFF;
 
         /// <summary>
         /// Storage for Available DotNet Frameworks.
@@ -111,14 +134,215 @@ namespace ILMergeGui
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Form1()
+        public Mainform()
         {
             InitializeComponent();
         }
 
         #endregion Constructors
 
+        #region Enumerations
+
+        /// <summary>
+        /// http://social.msdn.microsoft.com/forums/en-US/winforms/thread/86d8a8bf-8bc0-4567-970b-19a96b0e9b7c/
+        /// </summary>
+        [Flags]
+        internal enum LVBKIF
+        {
+            SOURCE_NONE = 0x00000000,
+            SOURCE_HBITMAP = 0x00000001,
+            SOURCE_URL = 0x00000002,
+            SOURCE_MASK = 0x00000003,
+            STYLE_NORMAL = 0x00000000,
+            STYLE_TILE = 0x00000010,
+            STYLE_MASK = 0x00000010,
+            FLAG_TILEOFFSET = 0x00000100,
+            TYPE_WATERMARK = 0x10000000,
+            FLAG_ALPHABLEND = 0x20000000
+        }
+
+        /// <summary>
+        /// http://social.msdn.microsoft.com/forums/en-US/winforms/thread/86d8a8bf-8bc0-4567-970b-19a96b0e9b7c/
+        /// </summary>
+        // Enumeration is set to unicode, ANSI counterparts are commented out.
+        // Contains a few undocumented messages of which the name was invented.
+        internal enum LVM
+        {
+            FIRST = 0x1000,
+            SETUNICODEFORMAT = 0x2005,        // CCM_SETUNICODEFORMAT,
+            GETUNICODEFORMAT = 0x2006,        // CCM_GETUNICODEFORMAT,
+            GETBKCOLOR = (FIRST + 0),
+            SETBKCOLOR = (FIRST + 1),
+            GETIMAGELIST = (FIRST + 2),
+            SETIMAGELIST = (FIRST + 3),
+            GETITEMCOUNT = (FIRST + 4),
+            GETITEMA = (FIRST + 5),
+            GETITEMW = (FIRST + 75),
+            GETITEM = GETITEMW,
+            //GETITEM                = GETITEMA,
+            SETITEMA = (FIRST + 6),
+            SETITEMW = (FIRST + 76),
+            SETITEM = SETITEMW,
+            //SETITEM                = SETITEMA,
+            INSERTITEMA = (FIRST + 7),
+            INSERTITEMW = (FIRST + 77),
+            INSERTITEM = INSERTITEMW,
+            //INSERTITEM             = INSERTITEMA,
+            DELETEITEM = (FIRST + 8),
+            DELETEALLITEMS = (FIRST + 9),
+            GETCALLBACKMASK = (FIRST + 10),
+            SETCALLBACKMASK = (FIRST + 11),
+            GETNEXTITEM = (FIRST + 12),
+            FINDITEMA = (FIRST + 13),
+            FINDITEMW = (FIRST + 83),
+            GETITEMRECT = (FIRST + 14),
+            SETITEMPOSITION = (FIRST + 15),
+            GETITEMPOSITION = (FIRST + 16),
+            GETSTRINGWIDTHA = (FIRST + 17),
+            GETSTRINGWIDTHW = (FIRST + 87),
+            HITTEST = (FIRST + 18),
+            ENSUREVISIBLE = (FIRST + 19),
+            SCROLL = (FIRST + 20),
+            REDRAWITEMS = (FIRST + 21),
+            ARRANGE = (FIRST + 22),
+            EDITLABELA = (FIRST + 23),
+            EDITLABELW = (FIRST + 118),
+            EDITLABEL = EDITLABELW,
+            //EDITLABEL              = EDITLABELA,
+            GETEDITCONTROL = (FIRST + 24),
+            GETCOLUMNA = (FIRST + 25),
+            GETCOLUMNW = (FIRST + 95),
+            SETCOLUMNA = (FIRST + 26),
+            SETCOLUMNW = (FIRST + 96),
+            INSERTCOLUMNA = (FIRST + 27),
+            INSERTCOLUMNW = (FIRST + 97),
+            DELETECOLUMN = (FIRST + 28),
+            GETCOLUMNWIDTH = (FIRST + 29),
+            SETCOLUMNWIDTH = (FIRST + 30),
+            GETHEADER = (FIRST + 31),
+            CREATEDRAGIMAGE = (FIRST + 33),
+            GETVIEWRECT = (FIRST + 34),
+            GETTEXTCOLOR = (FIRST + 35),
+            SETTEXTCOLOR = (FIRST + 36),
+            GETTEXTBKCOLOR = (FIRST + 37),
+            SETTEXTBKCOLOR = (FIRST + 38),
+            GETTOPINDEX = (FIRST + 39),
+            GETCOUNTPERPAGE = (FIRST + 40),
+            GETORIGIN = (FIRST + 41),
+            UPDATE = (FIRST + 42),
+            SETITEMSTATE = (FIRST + 43),
+            GETITEMSTATE = (FIRST + 44),
+            GETITEMTEXTA = (FIRST + 45),
+            GETITEMTEXTW = (FIRST + 115),
+            SETITEMTEXTA = (FIRST + 46),
+            SETITEMTEXTW = (FIRST + 116),
+            SETITEMCOUNT = (FIRST + 47),
+            SORTITEMS = (FIRST + 48),
+            SETITEMPOSITION32 = (FIRST + 49),
+            GETSELECTEDCOUNT = (FIRST + 50),
+            GETITEMSPACING = (FIRST + 51),
+            GETISEARCHSTRINGA = (FIRST + 52),
+            GETISEARCHSTRINGW = (FIRST + 117),
+            GETISEARCHSTRING = GETISEARCHSTRINGW,
+            //GETISEARCHSTRING       = GETISEARCHSTRINGA,
+            SETICONSPACING = (FIRST + 53),
+            SETEXTENDEDLISTVIEWSTYLE = (FIRST + 54),            // optional wParam == mask
+            GETEXTENDEDLISTVIEWSTYLE = (FIRST + 55),
+            GETSUBITEMRECT = (FIRST + 56),
+            SUBITEMHITTEST = (FIRST + 57),
+            SETCOLUMNORDERARRAY = (FIRST + 58),
+            GETCOLUMNORDERARRAY = (FIRST + 59),
+            SETHOTITEM = (FIRST + 60),
+            GETHOTITEM = (FIRST + 61),
+            SETHOTCURSOR = (FIRST + 62),
+            GETHOTCURSOR = (FIRST + 63),
+            APPROXIMATEVIEWRECT = (FIRST + 64),
+            SETWORKAREAS = (FIRST + 65),
+            GETWORKAREAS = (FIRST + 70),
+            GETNUMBEROFWORKAREAS = (FIRST + 73),
+            GETSELECTIONMARK = (FIRST + 66),
+            SETSELECTIONMARK = (FIRST + 67),
+            SETHOVERTIME = (FIRST + 71),
+            GETHOVERTIME = (FIRST + 72),
+            SETTOOLTIPS = (FIRST + 74),
+            GETTOOLTIPS = (FIRST + 78),
+            SORTITEMSEX = (FIRST + 81),
+            SETBKIMAGEA = (FIRST + 68),
+            SETBKIMAGEW = (FIRST + 138),
+            GETBKIMAGEA = (FIRST + 69),
+            GETBKIMAGEW = (FIRST + 139),
+            SETSELECTEDCOLUMN = (FIRST + 140),
+            SETVIEW = (FIRST + 142),
+            GETVIEW = (FIRST + 143),
+            INSERTGROUP = (FIRST + 145),
+            SETGROUPINFO = (FIRST + 147),
+            GETGROUPINFO = (FIRST + 149),
+            REMOVEGROUP = (FIRST + 150),
+            MOVEGROUP = (FIRST + 151),
+            GETGROUPCOUNT = (FIRST + 152),
+            GETGROUPINFOBYINDEX = (FIRST + 153),
+            MOVEITEMTOGROUP = (FIRST + 154),
+            GETGROUPRECT = (FIRST + 98),
+            SETGROUPMETRICS = (FIRST + 155),
+            GETGROUPMETRICS = (FIRST + 156),
+            ENABLEGROUPVIEW = (FIRST + 157),
+            SORTGROUPS = (FIRST + 158),
+            INSERTGROUPSORTED = (FIRST + 159),
+            REMOVEALLGROUPS = (FIRST + 160),
+            HASGROUP = (FIRST + 161),
+            GETGROUPSTATE = (FIRST + 92),
+            GETFOCUSEDGROUP = (FIRST + 93),
+            SETTILEVIEWINFO = (FIRST + 162),
+            GETTILEVIEWINFO = (FIRST + 163),
+            SETTILEINFO = (FIRST + 164),
+            GETTILEINFO = (FIRST + 165),
+            SETINSERTMARK = (FIRST + 166),
+            GETINSERTMARK = (FIRST + 167),
+            INSERTMARKHITTEST = (FIRST + 168),
+            GETINSERTMARKRECT = (FIRST + 169),
+            SETINSERTMARKCOLOR = (FIRST + 170),
+            GETINSERTMARKCOLOR = (FIRST + 171),
+            GETSELECTEDCOLUMN = (FIRST + 174),
+            ISGROUPVIEWENABLED = (FIRST + 175),
+            GETOUTLINECOLOR = (FIRST + 176),
+            SETOUTLINECOLOR = (FIRST + 177),
+            CANCELEDITLABEL = (FIRST + 179),
+            MAPINDEXTOID = (FIRST + 180),
+            MAPIDTOINDEX = (FIRST + 181),
+            ISITEMVISIBLE = (FIRST + 182),
+            GETACCVERSION = (FIRST + 193),
+            GETEMPTYTEXT = (FIRST + 204),
+            GETFOOTERRECT = (FIRST + 205),
+            GETFOOTERINFO = (FIRST + 206),
+            GETFOOTERITEMRECT = (FIRST + 207),
+            GETFOOTERITEM = (FIRST + 208),
+            GETITEMINDEXRECT = (FIRST + 209),
+            SETITEMINDEXSTATE = (FIRST + 210),
+            GETNEXTITEMINDEX = (FIRST + 211),
+            SETPRESERVEALPHA = (FIRST + 212),
+            SETBKIMAGE = SETBKIMAGEW,
+            GETBKIMAGE = GETBKIMAGEW,
+            //SETBKIMAGE             = SETBKIMAGEA,
+            //GETBKIMAGE             = GETBKIMAGEA,
+        }
+
+        internal enum LVS
+        {
+            EX_DOUBLEBUFFER = 0x00010000
+        }
+
+        #endregion Enumerations
+
         #region Properties
+
+        /// <summary>
+        /// List of supported File Extensions and their Descriptions for the ListView groups.
+        /// </summary>
+        public Dictionary<String, String> Extensions
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// Name of the ILMerge Assembly.
@@ -146,7 +370,7 @@ namespace ILMergeGui
         public String Primary
         {
             get;
-            set;
+            private set;
         }
 
         #endregion Properties
@@ -325,6 +549,15 @@ namespace ILMergeGui
             }
         }
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, UInt32 wParam, UInt32 lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, UInt32 lParam);
+
         private static String TestDotnetPath(Version ver, String frameworkpath, String basepath)
         {
             if (String.IsNullOrEmpty(frameworkpath))
@@ -348,7 +581,7 @@ namespace ILMergeGui
             return frameworkpath;
         }
 
-        private void ButAddFile_Click(object sender, EventArgs e)
+        private void btnAddFile_Click(object sender, EventArgs e)
         {
             openFile1.CheckFileExists = true;
             openFile1.Multiselect = true;
@@ -361,19 +594,19 @@ namespace ILMergeGui
             }
         }
 
-        private void ButKeyFile_Click(object sender, EventArgs e)
+        private void btnKeyFile_Click(object sender, EventArgs e)
         {
             SelectKeyFile();
         }
 
-        private void ButLogFile_Click(object sender, EventArgs e)
+        private void btnLogFile_Click(object sender, EventArgs e)
         {
             SelectLogFile();
         }
 
-        private void ButMerge_Click(object sender, EventArgs e)
+        private void btnMerge_Click(object sender, EventArgs e)
         {
-            //! Locate ILMerge.exe on disk ro registry.
+            //! Locate ILMerge.exe on disk or registry.
             //! Load ILMerge.exe dynamically.
             //! c:\Program Files (x86)\Microsoft\ILMerge\ILMerge.exe
 
@@ -381,10 +614,11 @@ namespace ILMergeGui
             //! FB8E12458022DA64AB4CCF9364EE3B15=C:\Program Files (x86)\Microsoft\ILMerge\ILMerge.exe
             //! or
             //! HKEY_CURRENT_USER\Software\Microsoft\Installer\Assemblies\C:|Program Files (x86)|Microsoft|ILMerge|ILMerge.exe
-            //! just enumerate HKEY_CURRENT_USER\Software\Microsoft\Installer\Assemblies until a key ends in |ILMerge.exe
+            //! just enumerate
+            //! HKEY_CURRENT_USER\Software\Microsoft\Installer\Assemblies until a key ends in |ILMerge.exe
 
-            Debug.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFilesX86));
-            Debug.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles));
+            //Debug.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFilesX86));
+            //Debug.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles));
 
             //! TODO Nicely find ILMerge.
             if (!DynaInvoke.PreLoadAssembly(iLMergePath, ilMerge))
@@ -416,7 +650,7 @@ namespace ILMergeGui
 
             for (Int32 i = 0; i < ListAssembly.Items.Count; i++)
             {
-                if (ListAssembly.Items[i].ToString().ToLower().Equals(TxtOutputAssembly.Text.ToLower()))
+                if (((String)ListAssembly.Items[i].Tag).ToLower().Equals(TxtOutputAssembly.Text.ToLower()))
                 {
                     MessageBox.Show(Resources.Error_OutputConflict, Resources.Error_Term, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     TxtOutputAssembly.Focus();
@@ -441,29 +675,29 @@ namespace ILMergeGui
                 }
             }
 
-            if (ListAssembly.SelectedItem == null)
+            if (ListAssembly.SelectedItems.Count == 0)
             {
                 for (Int32 i = 0; i < ListAssembly.Items.Count; i++)
                 {
-                    if (Path.GetExtension(ListAssembly.Items[i].ToString()).ToLower() == ".exe")
+                    if (Path.GetExtension((String)ListAssembly.Items[i].Tag).ToLower() == ".exe")
                     {
-                        ListAssembly.SelectedIndex = i;
-                        i = ListAssembly.Items.Count;
+                        ListAssembly.Items[i].Selected = true;
+                        break;
                     }
                 }
             }
 
-            if (ListAssembly.SelectedItem == null)
+            if (ListAssembly.SelectedItems.Count == 0)
             {
-                ListAssembly.SelectedIndex = 0;
+                ListAssembly.Items[0].Selected = true;
             }
 
             arrAssemblies.Add(Primary);
             for (Int32 i = 0; i < ListAssembly.Items.Count; i++)
             {
-                if (!arrAssemblies.Contains(ListAssembly.Items[i].ToString()))
+                if (!arrAssemblies.Contains((String)ListAssembly.Items[i].Tag))
                 {
-                    arrAssemblies.Add(ListAssembly.Items[i].ToString());
+                    arrAssemblies.Add((String)ListAssembly.Items[i].Tag);
                 }
             }
 
@@ -533,7 +767,7 @@ namespace ILMergeGui
             WorkerILMerge.RunWorkerAsync();
         }
 
-        private void ButOutputPath_Click(object sender, EventArgs e)
+        private void btnOutputPath_Click(object sender, EventArgs e)
         {
             SelectOutputFile();
         }
@@ -541,39 +775,233 @@ namespace ILMergeGui
         private void ChkGenerateLog_CheckedChanged(object sender, EventArgs e)
         {
             TxtLogFile.Enabled = ChkGenerateLog.Checked;
-            ButLogFile.Enabled = ChkGenerateLog.Checked;
+            btnLogFile.Enabled = ChkGenerateLog.Checked;
         }
 
         private void ChkSignKeyFile_CheckedChanged(object sender, EventArgs e)
         {
             TxtKeyFile.Enabled = ChkSignKeyFile.Checked;
-            ButKeyFile.Enabled = ChkSignKeyFile.Checked;
+            ChkDelayedSign.Enabled = ChkSignKeyFile.Checked;
+            btnKeyFile.Enabled = ChkSignKeyFile.Checked;
         }
 
         private void EnableForm(bool Enable)
         {
             ListAssembly.Enabled = Enable;
-            ButAddFile.Enabled = Enable;
+            btnAddFile.Enabled = Enable;
             BoxOptions.Enabled = Enable;
             BoxOutput.Enabled = Enable;
-            ButMerge.Enabled = Enable;
+            btnMerge.Enabled = Enable;
 
             Application.DoEvents();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FormatItems()
         {
+            foreach (ListViewItem lvi in ListAssembly.Items)
+            {
+                //! TODO Add this again, put full path in Tag?
+                if (!String.IsNullOrEmpty(Primary))
+                {
+                    //String bp = Path.GetDirectoryName(Primary);
+                    //e.Value = e.Value.ToString().Replace(bp, String.Empty);
+                    lvi.Text = MakeRelativePath(Primary, (String)lvi.Tag);
+                }
+                else
+                {
+                    lvi.Text = Path.GetFileName((String)lvi.Tag);
+                }
+            }
+
+            ListAssembly.Columns[0].Width = -1;
+        }
+
+        private void LblPrimaryAssembly_TextChanged(object sender, EventArgs e)
+        {
+            FormatItems();
+        }
+
+        private void LinkILMerge_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(LinkILMerge.Text);
+        }
+
+        private void ListAssembly_DragDrop(object sender, DragEventArgs e)
+        {
+            ProcessFiles((String[])e.Data.GetData(DataFormats.FileDrop));
+        }
+
+        private void ListAssembly_DragEnter(object sender, DragEventArgs e)
+        {
+            // make sure they're actually dropping files (not text or anything else)
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, false) == true)
+            {
+                // allow them to continue
+                // (without this, the cursor stays a "NO" symbol
+                e.Effect = DragDropEffects.All;
+            }
+        }
+
+        private void ListAssembly_KeyDown(object sender, KeyEventArgs e)
+        {
+            Int32 ndx = 0;
+            if (e.KeyCode == Keys.Delete &&
+                ListAssembly.SelectedItems != null)
+            {
+                while (ListAssembly.SelectedItems.Count > 0)
+                {
+                    ndx = ListAssembly.SelectedIndices[0];
+
+                    ListAssembly.Items[ndx].Selected = false;
+
+                    ListAssembly.Items.RemoveAt(ndx);
+                }
+
+                if (ndx > 0 || ListAssembly.Items.Count > 0)
+                {
+                    ListAssembly.Items[Math.Max(0, ndx - 1)].Selected = true;
+                }
+
+                btnMerge.Enabled = ListAssembly.Items.Count > 1;
+                FormatItems();
+            }
+
+            SetWaterMark(ListAssembly.Items.Count == 0);
+        }
+
+        private void UpdatePrimary()
+        {
+            btnMerge.Enabled = ListAssembly.Items.Count > 0;
+
+            if (ListAssembly.CheckedItems != null && ListAssembly.CheckedItems.Count > 0)
+            {
+                Primary = (String)ListAssembly.CheckedItems[0].Tag;
+                if (Path.GetFileName(Primary) != LblPrimaryAssembly.Text)
+                {
+                    LblPrimaryAssembly.Text = Path.GetFileName(Primary);
+                }
+            }
+            else
+            {
+                Primary = String.Empty;
+                if ("···" != LblPrimaryAssembly.Text)
+                {
+                    LblPrimaryAssembly.Text = "···";
+                }
+            }
+        }
+
+        private void LocateIlMerge()
+        {
+            iLMergePath = String.Empty;
+
+            // 1) Default Installation Locations...
             if (Environment.Is64BitOperatingSystem)
             {
                 iLMergePath = @Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
                     @"Microsoft\ILMerge\ILMerge.exe");
+                Debug.Print("ILMerge located at default x86 install location {0}", iLMergePath);
             }
             else
             {
                 iLMergePath = @Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
                     @"Microsoft\ILMerge\ILMerge.exe");
+                Debug.Print("ILMerge located at default install location {0}", iLMergePath);
+            }
+
+            // 2) Search Path...
+            if (String.IsNullOrEmpty(ilMerge) || !File.Exists(iLMergePath))
+            {
+                //See http://stackoverflow.com/questions/5578385/assembly-searchpath-via-path-environment
+                String path = System.Environment.GetEnvironmentVariable("Path");
+                String[] folders = path.Split(';');
+                foreach (String folder in folders)
+                {
+                    if (Directory.Exists(folder))
+                    {
+                        foreach (String file in Directory.GetFiles(folder, "ILMerge.exe"))
+                        {
+                            iLMergePath = Path.Combine(folder, file);
+                            Debug.Print("ILMerge located through %Path% at {0}", iLMergePath);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        //! These folders are missing on the FileSyetem.
+                        //Debug.Print(folder);
+                    }
+                }
+            }
+
+            //3) Search Registry...
+            if (String.IsNullOrEmpty(iLMergePath) || !File.Exists(iLMergePath))
+            {
+                //! HKEY_CURRENT_USER\Software\Microsoft\Installer\Assemblies\C:|Program Files (x86)|Microsoft|ILMerge|ILMerge.exe
+
+                //! just enumerate
+                //! HKEY_CURRENT_USER\Software\Microsoft\Installer\Assemblies until a key ends in |ILMerge.exe
+
+                using (RegistryKey AssembliesKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Installer\Assemblies", false))
+                {
+                    // If the return value is null, the key doesn't exist
+                    if (AssembliesKey != null)
+                    {
+                        foreach (String KeyName in AssembliesKey.GetSubKeyNames())
+                        {
+                            if (KeyName.EndsWith("ILMerge.exe", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (File.Exists(KeyName.Replace('|', '\\')))
+                                {
+                                    iLMergePath = KeyName.Replace('|', '\\');
+                                    Debug.Print("ILMerge located through Registry at {0}", iLMergePath);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            //! TODO Fourth Search Strategy.
+            //! HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-21-822211721-2317658140-2171821640-1000\Components\F995DC6782BCD301ECDB40AF0BEFB501
+            //! FB8E12458022DA64AB4CCF9364EE3B15=C:\Program Files (x86)\Microsoft\ILMerge\ILMerge.exe
+
+            if (String.IsNullOrEmpty(iLMergePath) || !File.Exists(iLMergePath))
+            {
+                MessageBox.Show("IlMerge could not be located, please reinstall!", "ILMergeGui", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void Mainform_Load(object sender, EventArgs e)
+        {
+            Extensions = new Dictionary<String, String>();
+            Extensions.Add("exe", "Executable(s)");
+            Extensions.Add("dll", "Assemblies or dll(s)");
+
+            ListAssembly.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+
+            foreach (KeyValuePair<String, String> kvp in Extensions)
+            {
+                ListAssembly.Groups.Add(kvp.Key, kvp.Value);
+            }
+
+            SendMessage(ListAssembly.Handle, (int)LVM.SETTEXTBKCOLOR, IntPtr.Zero, CLR_NONE);
+            SendMessage(ListAssembly.Handle, (int)LVM.SETEXTENDEDLISTVIEWSTYLE, (int)LVS.EX_DOUBLEBUFFER, (int)LVS.EX_DOUBLEBUFFER);
+
+            SetWaterMark(true);
+
+            LocateIlMerge();
+
+            if (File.Exists(iLMergePath))
+            {
+                label1.Text = String.Format("IlMerge: v{0}", AssemblyName.GetAssemblyName(iLMergePath).Version.ToString());
+            }
+            else
+            {
+                label1.Text = String.Format("IlMerge: {0}", "not found.");
             }
 
             RestoreDefaults();
@@ -593,9 +1021,124 @@ namespace ILMergeGui
             {
                 if (arg.Equals("/Merge", StringComparison.OrdinalIgnoreCase))
                 {
-                    ButMerge.PerformClick();
+                    btnMerge.PerformClick();
                 }
             }
+        }
+
+        private void Mainform_Shown(object sender, EventArgs e)
+        {
+            ListAssembly.Focus();
+        }
+
+        private void mnuFileNew_Click(object sender, EventArgs e)
+        {
+            this.Text = Application.ProductName;
+
+            RestoreDefaults();
+        }
+
+        private void mnuFileOpen_Click(object sender, EventArgs e)
+        {
+            RestoreSettings(@"c:\temp\ILMerge.xml");
+        }
+
+        /// <summary>
+        /// Some sanity checks before merge.
+        /// </summary>
+        private void PreMerge()
+        {
+            if (String.IsNullOrEmpty(TxtKeyFile.Text))
+            {
+                ChkSignKeyFile.Checked = false;
+            }
+
+            if (String.IsNullOrEmpty(TxtLogFile.Text))
+            {
+                ChkGenerateLog.Checked = false;
+            }
+
+            if (TxtOutputAssembly.Text.Length < 5)
+            {
+                SelectOutputFile();
+            }
+        }
+
+        /// <summary>
+        /// Process selected or dropped Assemblies.
+        /// </summary>
+        /// <param name="filenames">The list of file to process.</param>
+        private void ProcessFiles(String[] filenames)
+        {
+            UseWaitCursor = true;
+
+            ListAssembly.BeginUpdate();
+
+            Boolean isDupe = false;
+
+            for (Int32 i = 0; i < filenames.Length; i++)
+            {
+                if (File.Exists(filenames[i]))
+                {
+                    Debug.WriteLine(filenames[i]);
+                    String strExtension = Path.GetExtension(filenames[i]).ToLower().TrimStart('.');
+
+                    if (Extensions.ContainsKey(strExtension))
+                    {
+                        isDupe = false;
+
+                        for (Int32 z = 0; z < ListAssembly.Items.Count; z++)
+                        {
+                            if (filenames[i] == (String)ListAssembly.Items[z].Tag)
+                            {
+                                isDupe = true;
+                            }
+                        }
+
+                        if (!isDupe)
+                        {
+                            ListViewItem lvi = ListAssembly.Items.Add(filenames[i]);
+
+                            lvi.SubItems.Add(AssemblyName.GetAssemblyName(filenames[i]).Version.ToString());
+
+
+                            lvi.Tag = filenames[i];
+                            lvi.Group = ListAssembly.Groups[strExtension];
+                        }
+                    }
+                }
+                else if (Directory.Exists(filenames[i]))
+                {
+                    String[] files = Directory.GetFiles(filenames[i]);
+                    ProcessFiles(files);
+
+                    String[] directories = Directory.GetDirectories(filenames[i]);
+                    ProcessFiles(directories);
+                }
+            }
+
+            ListAssembly.Columns[0].Width = -1;
+            ListAssembly.Columns[1].Width = -1;
+
+            btnMerge.Enabled = ListAssembly.Items.Count > 1;
+
+            if (String.IsNullOrEmpty(Primary))
+            {
+                if (ListAssembly.Groups[0].Items.Count > 0)
+                {
+                    ListAssembly.Groups[0].Items[0].Checked = true;
+                }
+            }
+
+            UpdatePrimary();
+
+            FormatItems();
+
+            SetWaterMark(ListAssembly.Items.Count == 0);
+
+            ListAssembly.EndUpdate();
+
+            UseWaitCursor = false;
         }
 
         private void RestoreDefaults()
@@ -640,144 +1183,118 @@ namespace ILMergeGui
             TxtOutputAssembly.Text = String.Empty;
         }
 
-        private void LblPrimaryAssembly_TextChanged(object sender, EventArgs e)
+        private void RestoreSettings(String filename)
         {
-            ListAssembly.FormattingEnabled = false;
-            ListAssembly.FormattingEnabled = true;
-        }
+            XDocument doc = XDocument.Load(filename);
 
-        private void LinkILMerge_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start(LinkILMerge.Text);
-        }
+            this.Text = String.Format("{0} - [{1}]",
+                Application.ProductName,
+                Path.GetFileName(filename));
 
-        private void ListAssembly_DragDrop(object sender, DragEventArgs e)
-        {
-            ProcessFiles((String[])e.Data.GetData(DataFormats.FileDrop));
-        }
+            //1) Restore Switches.
+            ChkCopyAttributes.Checked = Boolean.Parse(doc.Root.Element("CopyAttributes").Attribute("Enabled").Value);
+            ChkUnionDuplicates.Checked = Boolean.Parse(doc.Root.Element("UnionDuplicates").Attribute("Enabled").Value);
+            CboDebug.SelectedIndex = Int32.Parse(doc.Root.Element("Debug").Attribute("Enabled").Value);
 
-        private void ListAssembly_DragEnter(object sender, DragEventArgs e)
-        {
-            // make sure they're actually dropping files (not text or anything else)
-            if (e.Data.GetDataPresent(DataFormats.FileDrop, false) == true)
+            //2) Restore Signing.
+            ChkSignKeyFile.Checked = Boolean.Parse(doc.Root.Element("Sign").Attribute("Enabled").Value);
+            ChkDelayedSign.Checked = Boolean.Parse(doc.Root.Element("Sign").Attribute("Delay").Value);
+            TxtKeyFile.Text = doc.Root.Element("Sign").Value;
+
+            //3) Restore Logging.
+            ChkGenerateLog.Checked = Boolean.Parse(doc.Root.Element("Log").Attribute("Enabled").Value);
+            TxtLogFile.Text = doc.Root.Element("Log").Value;
+
+            //! TODO Restore Groups too.
+
+            //4) Restore Assemblies.
+            ListAssembly.Items.Clear();
+            foreach (XElement assembly in doc.Root.Element("Assemblies").Elements("Assembly"))
             {
-                // allow them to continue
-                // (without this, the cursor stays a "NO" symbol
-                e.Effect = DragDropEffects.All;
+                ListViewItem lvi = ListAssembly.Items.Add(assembly.Value);
+                lvi.Tag = assembly.Value;
             }
-        }
+            Primary = doc.Root.Element("Assemblies").Element("Primary").Value;
+            LblPrimaryAssembly.Text = Path.GetFileName(Primary);
 
-        private void ListAssembly_Format(object sender, ListControlConvertEventArgs e)
-        {
-            if (!String.IsNullOrEmpty(Primary))
+            //5) Restore Output.
+            TxtOutputAssembly.Text = doc.Root.Element("OutputAssembly").Value;
+
+            //6) Restore Framework.
+            String framework = doc.Root.Element("Framework").Value;
+            foreach (Object o in CboTargetFramework.Items)
             {
-                //String bp = Path.GetDirectoryName(Primary);
-                //e.Value = e.Value.ToString().Replace(bp, String.Empty);
-                e.Value = MakeRelativePath(Primary, e.Value.ToString());
-            }
-            else
-            {
-                e.Value = Path.GetFileName(e.Value.ToString());
-            }
-        }
-
-        private void ListAssembly_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Delete && ListAssembly.SelectedItem != null)
-            {
-                Int32 ndx = ListAssembly.SelectedIndex;
-
-                ListAssembly.Items.Remove(ListAssembly.SelectedItem);
-
-                if (ndx > 0 || ListAssembly.Items.Count > 0)
+                if (((DotNet)o).name.Equals(framework))
                 {
-                    ListAssembly.SelectedIndex = Math.Max(0, ndx - 1);
-                }
-
-                ButMerge.Enabled = ListAssembly.Items.Count > 1;
-            }
-        }
-
-        private void ListAssembly_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ButMerge.Enabled = ListAssembly.Items.Count > 0;
-
-            if (ListAssembly.SelectedItem != null)
-            {
-                Primary = ListAssembly.SelectedItem.ToString();
-                if (Path.GetFileName(Primary) != LblPrimaryAssembly.Text)
-                {
-                    LblPrimaryAssembly.Text = Path.GetFileName(Primary);
-                }
-            }
-            else
-            {
-                Primary = String.Empty;
-                if ("···" != LblPrimaryAssembly.Text)
-                {
-                    LblPrimaryAssembly.Text = "···";
+                    CboTargetFramework.SelectedItem = o;
+                    break;
                 }
             }
         }
 
-        /// <summary>
-        /// Some sanity checks before merge.
-        /// </summary>
-        private void PreMerge()
+        private void SaveSettings(String filename)
         {
-            if (String.IsNullOrEmpty(TxtKeyFile.Text))
+            XDocument doc = new XDocument(new XElement("Settings"));
+
+            //1) Save Switches.
+            doc.Root.Add(
+                new XComment("Switches"),
+                new XElement("CopyAttributes", new XAttribute("Enabled", ChkCopyAttributes.Checked)),
+                new XElement("UnionDuplicates", new XAttribute("Enabled", ChkUnionDuplicates.Checked)),
+                new XElement("Debug", new XAttribute("Enabled", CboDebug.SelectedIndex)));
+
+            //2) Save Signing.
+            doc.Root.Add(
+                new XComment("Signing"),
+                    new XElement("Sign",
+                    new XAttribute("Enabled", ChkSignKeyFile.Checked),
+                    new XAttribute("Delay", ChkDelayedSign.Checked),
+                    new XText(TxtKeyFile.Text)
+                ));
+
+            //3) Save Logging.
+            doc.Root.Add(
+                new XComment("Logging"),
+                    new XElement("Log",
+                    new XAttribute("Enabled", ChkGenerateLog.Checked),
+                    new XText(TxtLogFile.Text)
+                ));
+
+            //4) Save Assemblies.
+            XElement assemblies = new XElement("Assemblies");
+            foreach (ListViewItem item in ListAssembly.Items)
             {
-                ChkSignKeyFile.Checked = false;
+                assemblies.Add(new XElement("Assembly", (String)item.Tag));
+            }
+            assemblies.Add(
+                new XElement("Primary", Primary));
+
+            doc.Root.Add(
+                new XComment("Assemblies"),
+                assemblies);
+
+            //5) Save Output.
+            doc.Root.Add(
+                new XComment("Output"),
+                new XElement("OutputAssembly", TxtOutputAssembly.Text));
+
+            //6) Save Framework.
+            if (CboTargetFramework.SelectedIndex != -1)
+            {
+                DotNet framework = (DotNet)(CboTargetFramework.SelectedItem);
+                doc.Root.Add(new XElement("Framework", framework.name));
             }
 
-            if (String.IsNullOrEmpty(TxtLogFile.Text))
-            {
-                ChkGenerateLog.Checked = false;
-            }
+            doc.Save(filename);
 
-            if (TxtOutputAssembly.Text.Length < 5)
-            {
-                SelectOutputFile();
-            }
+            this.Text = String.Format("{0} - [{1}]",
+                Application.ProductName,
+                Path.GetFileName(filename));
         }
 
-        /// <summary>
-        /// Process selected or dropped Assemblies.
-        /// </summary>
-        /// <param name="filenames">The list of file to process.</param>
-        private void ProcessFiles(String[] filenames)
+        private void mnuFileSave_Click(object sender, EventArgs e)
         {
-            UseWaitCursor = true;
-
-            Boolean isDupe = false;
-
-            for (Int32 i = 0; i < filenames.Length; i++)
-            {
-                String strExtension = Path.GetExtension(filenames[i]).ToLower();
-
-                if (strExtension == ".dll" || strExtension == ".exe")
-                {
-                    isDupe = false;
-
-                    for (Int32 z = 0; z < ListAssembly.Items.Count; z++)
-                    {
-                        if (filenames[i] == ListAssembly.Items[z].ToString())
-                        {
-                            isDupe = true;
-                        }
-                    }
-
-                    if (!isDupe)
-                    {
-                        ListAssembly.Items.Add(filenames[i]);
-                    }
-                }
-                ListAssembly.Refresh();
-            }
-
-            ButMerge.Enabled = ListAssembly.Items.Count > 1;
-
-            UseWaitCursor = false;
+            SaveSettings(@"c:\temp\ILMerge.xml");
         }
 
         /// <summary>
@@ -837,9 +1354,9 @@ namespace ILMergeGui
         {
             SetOpenFileDefaults("Assembly|*.dll;*.exe");
 
-            if (ListAssembly.SelectedItem != null)
+            if (ListAssembly.SelectedItems.Count != 0)
             {
-                openFile1.FileName = Path.GetFileName(ListAssembly.SelectedItem.ToString());
+                openFile1.FileName = Path.GetFileName((String)ListAssembly.SelectedItems[0].Tag);
             }
 
             if (TxtOutputAssembly.Text.Length > 3)
@@ -864,6 +1381,36 @@ namespace ILMergeGui
             openFile1.Multiselect = false;
             openFile1.Filter = filter + "|All Files|*.*";
             openFile1.FileName = filter.Substring(filter.IndexOf('|') + 1);
+        }
+
+        private void SetWaterMark(Boolean show)
+        {
+            LVBKIMAGE backImage = new LVBKIMAGE();
+
+            if (show)
+            {
+                backImage.ulFlags =
+                    LVBKIF.STYLE_NORMAL |
+                    LVBKIF.TYPE_WATERMARK |
+                    LVBKIF.FLAG_ALPHABLEND;
+                backImage.hbm = global::ILMergeGui.Properties.Resources.IconDropHere.GetHbitmap();
+            }
+            else
+            {
+                backImage.ulFlags = LVBKIF.SOURCE_NONE;
+            }
+
+            IntPtr pointer = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(LVBKIMAGE)));
+            Marshal.StructureToPtr(backImage, pointer, false);
+
+            SendMessage(
+                ListAssembly.Handle, (int)LVM.SETBKIMAGEW, IntPtr.Zero, pointer);
+
+            //DefWndProc(ref message);
+
+            Marshal.FreeHGlobal(pointer);
+
+            ListAssembly.Invalidate();
         }
 
         /// <summary>
@@ -983,129 +1530,53 @@ namespace ILMergeGui
             #endregion Methods
         }
 
+        /// <summary>
+        /// http://social.msdn.microsoft.com/forums/en-US/winforms/thread/86d8a8bf-8bc0-4567-970b-19a96b0e9b7c/
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        internal struct LVBKIMAGE
+        {
+            public LVBKIF ulFlags;
+            public IntPtr hbm;
+            public IntPtr pszImage;
+            public int cchImageMax;
+            public int xOffsetPercent;
+            public int yOffsetPercent;
+        }
+
         #endregion Nested Types
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        private void mnuFileExit_Click(object sender, EventArgs e)
         {
-            SaveSettings(@"c:\temp\ILMerge.xml");
+            Application.Exit();
         }
 
-        private void SaveSettings(String filename)
+        private void ListAssembly_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
-            XDocument doc = new XDocument(new XElement("Settings"));
-
-            //1) Save Switches.
-            doc.Root.Add(
-                new XComment("Switches"),
-                new XElement("CopyAttributes", new XAttribute("Enabled", ChkCopyAttributes.Checked)),
-                new XElement("UnionDuplicates", new XAttribute("Enabled", ChkUnionDuplicates.Checked)),
-                new XElement("Debug", new XAttribute("Enabled", CboDebug.SelectedIndex)));
-
-            //2) Save Signing.
-            doc.Root.Add(
-                new XComment("Signing"),
-                    new XElement("Sign",
-                    new XAttribute("Enabled", ChkSignKeyFile.Checked),
-                    new XAttribute("Delay", ChkDelayedSign.Checked),
-                    new XText(TxtKeyFile.Text)
-                ));
-
-            //3) Save Logging.
-            doc.Root.Add(
-                new XComment("Logging"),
-                    new XElement("Log",
-                    new XAttribute("Enabled", ChkGenerateLog.Checked),
-                    new XText(TxtLogFile.Text)
-                ));
-
-            //4) Save Assemblies.
-            XElement assemblies = new XElement("Assemblies");
-            foreach (Object item in ListAssembly.Items)
-            {
-                assemblies.Add(new XElement("Assembly", item.ToString()));
-            }
-            assemblies.Add(
-                new XElement("Primary", Primary));
-
-            doc.Root.Add(
-                new XComment("Assemblies"),
-                assemblies);
-
-            //5) Save Output.
-            doc.Root.Add(
-                new XComment("Output"),
-                new XElement("OutputAssembly", TxtOutputAssembly.Text));
-
-            //6) Save Framework.
-            if (CboTargetFramework.SelectedIndex != -1)
-            {
-                DotNet framework = (DotNet)(CboTargetFramework.SelectedItem);
-                doc.Root.Add(new XElement("Framework", framework.name));
-            }
-
-            doc.Save(filename);
-
-            this.Text = String.Format("{0} - [{1}]",
-                Application.ProductName,
-                Path.GetFileName(filename));
+            UpdatePrimary();
         }
 
-        private void openToolStripMenuItem3_Click(object sender, EventArgs e)
+        private void ListAssembly_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            RestoreSettings(@"c:\temp\ILMerge.xml");
-        }
-
-        private void RestoreSettings(String filename)
-        {
-            XDocument doc = XDocument.Load(filename);
-
-            this.Text = String.Format("{0} - [{1}]",
-                Application.ProductName,
-                Path.GetFileName(filename));
-
-            //1) Restore Switches.
-            ChkCopyAttributes.Checked = Boolean.Parse(doc.Root.Element("CopyAttributes").Attribute("Enabled").Value);
-            ChkUnionDuplicates.Checked = Boolean.Parse(doc.Root.Element("UnionDuplicates").Attribute("Enabled").Value);
-            CboDebug.SelectedIndex = Int32.Parse(doc.Root.Element("Debug").Attribute("Enabled").Value);
-
-            //2) Restore Signing.
-            ChkSignKeyFile.Checked = Boolean.Parse(doc.Root.Element("Sign").Attribute("Enabled").Value);
-            ChkDelayedSign.Checked = Boolean.Parse(doc.Root.Element("Sign").Attribute("Delay").Value);
-            TxtKeyFile.Text = doc.Root.Element("Sign").Value;
-
-            //3) Restore Logging.
-            ChkGenerateLog.Checked = Boolean.Parse(doc.Root.Element("Log").Attribute("Enabled").Value);
-            TxtLogFile.Text = doc.Root.Element("Log").Value;
-
-            //4) Restore Assemblies.
-            ListAssembly.Items.Clear();
-            foreach (XElement assembly in doc.Root.Element("Assemblies").Elements("Assembly"))
+            if (e.NewValue == CheckState.Checked)
             {
-                ListAssembly.Items.Add(assembly.Value);
-            }
-            Primary = doc.Root.Element("Assemblies").Element("Primary").Value;
-            LblPrimaryAssembly.Text = Path.GetFileName(Primary);
-
-            //5) Restore Output.
-            TxtOutputAssembly.Text = doc.Root.Element("OutputAssembly").Value;
-
-            //6) Restore Framework.
-            String framework = doc.Root.Element("Framework").Value;
-            foreach (Object o in CboTargetFramework.Items)
-            {
-                if (((DotNet)o).name.Equals(framework))
+                ListAssembly.BeginUpdate();
+                foreach (ListViewItem lvi in ListAssembly.CheckedItems)
                 {
-                    CboTargetFramework.SelectedItem = o;
-                    break;
+                    if (lvi.Index != e.Index)
+                    {
+                        lvi.Checked = false;
+                        lvi.Selected = false;
+                    }
                 }
+
+                foreach (ListViewItem lvi in ListAssembly.Items)
+                {
+                    lvi.Selected = lvi.Index == e.Index;
+                }
+
+                ListAssembly.EndUpdate();
             }
-        }
-
-        private void newToolStripMenuItem3_Click(object sender, EventArgs e)
-        {
-            this.Text = Application.ProductName;
-
-            RestoreDefaults();
         }
     }
 }
