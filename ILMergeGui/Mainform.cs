@@ -1040,7 +1040,10 @@ namespace ILMergeGui
 
         private void mnuFileOpen_Click(object sender, EventArgs e)
         {
-            RestoreSettings(@"c:\temp\ILMerge.xml");
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                RestoreSettings(openFileDialog1.FileName);
+            }
         }
 
         /// <summary>
@@ -1205,15 +1208,16 @@ namespace ILMergeGui
             ChkGenerateLog.Checked = Boolean.Parse(doc.Root.Element("Log").Attribute("Enabled").Value);
             TxtLogFile.Text = doc.Root.Element("Log").Value;
 
-            //! TODO Restore Groups too.
-
             //4) Restore Assemblies.
             ListAssembly.Items.Clear();
+
+            List<String> files = new List<String>();
             foreach (XElement assembly in doc.Root.Element("Assemblies").Elements("Assembly"))
             {
-                ListViewItem lvi = ListAssembly.Items.Add(assembly.Value);
-                lvi.Tag = assembly.Value;
+                files.Add(assembly.Value);
             }
+            ProcessFiles(files.ToArray());
+
             Primary = doc.Root.Element("Assemblies").Element("Primary").Value;
             LblPrimaryAssembly.Text = Path.GetFileName(Primary);
 
@@ -1294,7 +1298,10 @@ namespace ILMergeGui
 
         private void mnuFileSave_Click(object sender, EventArgs e)
         {
-            SaveSettings(@"c:\temp\ILMerge.xml");
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                SaveSettings(saveFileDialog1.FileName);
+            }
         }
 
         /// <summary>

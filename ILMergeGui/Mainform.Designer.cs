@@ -49,6 +49,9 @@
             this.btnMerge = new System.Windows.Forms.Button();
             this.CboDebug = new System.Windows.Forms.ComboBox();
             this.CboTargetFramework = new System.Windows.Forms.ComboBox();
+            this.ListAssembly = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.WorkerILMerge = new System.ComponentModel.BackgroundWorker();
             this.openFile1 = new System.Windows.Forms.OpenFileDialog();
             this.LblPrimaryAssembly = new System.Windows.Forms.Label();
@@ -86,10 +89,9 @@
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.openToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.ListAssembly = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label1 = new System.Windows.Forms.Label();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.BoxOutput.SuspendLayout();
             this.BoxOptions.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -328,6 +330,38 @@
             this.CboTargetFramework.Size = new System.Drawing.Size(227, 21);
             this.CboTargetFramework.TabIndex = 8;
             this.ToolTips.SetToolTip(this.CboTargetFramework, "Set the target framework");
+            // 
+            // ListAssembly
+            // 
+            this.ListAssembly.Activation = System.Windows.Forms.ItemActivation.OneClick;
+            this.ListAssembly.AllowDrop = true;
+            this.ListAssembly.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ListAssembly.CheckBoxes = true;
+            this.ListAssembly.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.ListAssembly.FullRowSelect = true;
+            this.ListAssembly.GridLines = true;
+            this.ListAssembly.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.ListAssembly.HideSelection = false;
+            this.ListAssembly.Location = new System.Drawing.Point(3, 16);
+            this.ListAssembly.Name = "ListAssembly";
+            this.ListAssembly.Size = new System.Drawing.Size(554, 180);
+            this.ListAssembly.TabIndex = 34;
+            this.ToolTips.SetToolTip(this.ListAssembly, "Assemblies to be merged");
+            this.ListAssembly.UseCompatibleStateImageBehavior = false;
+            this.ListAssembly.View = System.Windows.Forms.View.Details;
+            this.ListAssembly.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.ListAssembly_ItemCheck);
+            this.ListAssembly.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.ListAssembly_ItemChecked);
+            this.ListAssembly.DragDrop += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragDrop);
+            this.ListAssembly.DragEnter += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragEnter);
+            this.ListAssembly.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListAssembly_KeyDown);
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Assembly";
             // 
             // WorkerILMerge
             // 
@@ -624,38 +658,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Assemblies to merge:";
             // 
-            // ListAssembly
-            // 
-            this.ListAssembly.Activation = System.Windows.Forms.ItemActivation.OneClick;
-            this.ListAssembly.AllowDrop = true;
-            this.ListAssembly.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ListAssembly.CheckBoxes = true;
-            this.ListAssembly.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2});
-            this.ListAssembly.FullRowSelect = true;
-            this.ListAssembly.GridLines = true;
-            this.ListAssembly.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.ListAssembly.HideSelection = false;
-            this.ListAssembly.Location = new System.Drawing.Point(3, 16);
-            this.ListAssembly.Name = "ListAssembly";
-            this.ListAssembly.Size = new System.Drawing.Size(554, 180);
-            this.ListAssembly.TabIndex = 34;
-            this.ToolTips.SetToolTip(this.ListAssembly, "Assemblies to be merged");
-            this.ListAssembly.UseCompatibleStateImageBehavior = false;
-            this.ListAssembly.View = System.Windows.Forms.View.Details;
-            this.ListAssembly.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.ListAssembly_ItemCheck);
-            this.ListAssembly.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.ListAssembly_ItemChecked);
-            this.ListAssembly.DragDrop += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragDrop);
-            this.ListAssembly.DragEnter += new System.Windows.Forms.DragEventHandler(this.ListAssembly_DragEnter);
-            this.ListAssembly.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListAssembly_KeyDown);
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "Assembly";
-            // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -665,6 +667,20 @@
             this.label1.Size = new System.Drawing.Size(35, 13);
             this.label1.TabIndex = 40;
             this.label1.Text = "label1";
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.DefaultExt = "*.ilproj";
+            this.openFileDialog1.FileName = "*.ilproj";
+            this.openFileDialog1.Filter = "IlMerge Project|*.ilproj|All Files|*.*";
+            this.openFileDialog1.Title = "Select an IlMergeGui Project";
+            // 
+            // saveFileDialog1
+            // 
+            this.saveFileDialog1.DefaultExt = "*.ilproj";
+            this.saveFileDialog1.FileName = "*.ilproj";
+            this.saveFileDialog1.Filter = "IlMerge Project|*.ilproj|All Files|*.*";
+            this.saveFileDialog1.Title = "Save as IlMergeGui Project";
             // 
             // Mainform
             // 
@@ -759,6 +775,8 @@
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
 
     }
 }
