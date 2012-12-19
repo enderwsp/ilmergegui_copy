@@ -52,6 +52,8 @@
             this.ListAssembly = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ChkInternalize = new System.Windows.Forms.CheckBox();
+            this.ChkMergeXml = new System.Windows.Forms.CheckBox();
             this.WorkerILMerge = new System.ComponentModel.BackgroundWorker();
             this.openFile1 = new System.Windows.Forms.OpenFileDialog();
             this.LblPrimaryAssembly = new System.Windows.Forms.Label();
@@ -92,8 +94,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.ChkInternalize = new System.Windows.Forms.CheckBox();
-            this.ChkMergeXml = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.BoxOutput.SuspendLayout();
             this.BoxOptions.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -365,6 +366,28 @@
             // columnHeader1
             // 
             this.columnHeader1.Text = "Assembly";
+            // 
+            // ChkInternalize
+            // 
+            this.ChkInternalize.AutoSize = true;
+            this.ChkInternalize.Location = new System.Drawing.Point(253, 21);
+            this.ChkInternalize.Name = "ChkInternalize";
+            this.ChkInternalize.Size = new System.Drawing.Size(74, 17);
+            this.ChkInternalize.TabIndex = 18;
+            this.ChkInternalize.Text = "Internalize";
+            this.ToolTips.SetToolTip(this.ChkInternalize, "Change all public identifiers into internal ones.");
+            this.ChkInternalize.UseVisualStyleBackColor = true;
+            // 
+            // ChkMergeXml
+            // 
+            this.ChkMergeXml.AutoSize = true;
+            this.ChkMergeXml.Location = new System.Drawing.Point(253, 49);
+            this.ChkMergeXml.Name = "ChkMergeXml";
+            this.ChkMergeXml.Size = new System.Drawing.Size(147, 17);
+            this.ChkMergeXml.TabIndex = 19;
+            this.ChkMergeXml.Text = "Merge xml documentation";
+            this.ToolTips.SetToolTip(this.ChkMergeXml, "Merge xml documentation into a single file.");
+            this.ChkMergeXml.UseVisualStyleBackColor = true;
             // 
             // WorkerILMerge
             // 
@@ -687,33 +710,22 @@
             this.saveFileDialog1.Filter = "IlMerge Project|*.ilproj|All Files|*.*";
             this.saveFileDialog1.Title = "Save as IlMergeGui Project";
             // 
-            // ChkInternalize
+            // label2
             // 
-            this.ChkInternalize.AutoSize = true;
-            this.ChkInternalize.Location = new System.Drawing.Point(253, 21);
-            this.ChkInternalize.Name = "ChkInternalize";
-            this.ChkInternalize.Size = new System.Drawing.Size(74, 17);
-            this.ChkInternalize.TabIndex = 18;
-            this.ChkInternalize.Text = "Internalize";
-            this.ToolTips.SetToolTip(this.ChkInternalize, "Change all public identifiers into internal ones.");
-            this.ChkInternalize.UseVisualStyleBackColor = true;
-            // 
-            // ChkMergeXml
-            // 
-            this.ChkMergeXml.AutoSize = true;
-            this.ChkMergeXml.Location = new System.Drawing.Point(253, 49);
-            this.ChkMergeXml.Name = "ChkMergeXml";
-            this.ChkMergeXml.Size = new System.Drawing.Size(147, 17);
-            this.ChkMergeXml.TabIndex = 19;
-            this.ChkMergeXml.Text = "Merge xml documentation";
-            this.ToolTips.SetToolTip(this.ChkMergeXml, "Merge xml documentation into a single file.");
-            this.ChkMergeXml.UseVisualStyleBackColor = true;
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 553);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(35, 13);
+            this.label2.TabIndex = 41;
+            this.label2.Text = "label2";
             // 
             // Mainform
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(584, 575);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.LinkILMerge);
@@ -806,6 +818,7 @@
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         internal System.Windows.Forms.CheckBox ChkInternalize;
         internal System.Windows.Forms.CheckBox ChkMergeXml;
+        private System.Windows.Forms.Label label2;
 
     }
 }

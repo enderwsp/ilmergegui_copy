@@ -1017,6 +1017,8 @@ namespace ILMergeGui
                 label1.Text = String.Format("IlMerge: {0}", "not found.");
             }
 
+            label2.Text = String.Format("IlMergeGui: v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+
             RestoreDefaults();
 
             foreach (String arg in Environment.GetCommandLineArgs())
