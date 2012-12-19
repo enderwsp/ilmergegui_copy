@@ -31,20 +31,33 @@
  *                  - Changed linklabels
  *                  - Removed donate.
  *                  - Debugged MakeRelativePath (same paths returned empty string).
- * 05-05-2012 - veg - Added menubar
+ * ----------   ---   -------------------------------------------------------------------------------
+ * 05-05-2012 - veg - Added menubar.
  *                  - Added saving and restoring of settings in xml format.
+ * ----------   ---   -------------------------------------------------------------------------------
  * 21-06-2012 - veg - Improved ILMerge.exe searching (added path and assembly registry).
  *                  - Swapped ListBox for ListView.
  *                  - Added transparent background watermark image.
  *                  - Changed logic around formatting the display values.
  *                    Reformat them all using the ListViewItem Tag property as storage for original filenames.
  *                  - Change code to use Tag property for filename (TEST!).
+ * ----------   ---   ------------------------------------------------------------------------------- 
  * 22-06-2012 - veg - Added support for dropping (sub) directories.
  *                  - Added checkboxes for primary assembly instead of selected item.
  *                  - Refactored code a bit.
  *                  - Added version column.
  *                  - Enabled AutoVersionIncrement on Rebuild.
- * ----------   ---   ------------------------------------------------------------------------------- */
+ * ----------   ---   -------------------------------------------------------------------------------
+ * 19-12-2012 - veg - Added Internalize support.
+ *                  - Added support for merging XmlDocumentation.
+ *                  - Added version number to main form (should be 2.0.4 for this release).
+ *                  - Updated click-once installer.
+ *                  - Fixed merging assemblies into a dll.
+ *                  - Released as v2.0.4
+ * ----------   ---   -------------------------------------------------------------------------------
+ * 19-12-2012 - veg - Fixed workitem 8741.
+ * ----------   ---   ------------------------------------------------------------------------------- 
+ */
 
 #endregion Header
 
@@ -630,7 +643,8 @@ namespace ILMergeGui
 
             PreMerge();
 
-            if (!Directory.Exists(Path.GetDirectoryName(TxtOutputAssembly.Text)))
+            //! [workitem:8741]
+            if (String.IsNullOrWhiteSpace(TxtOutputAssembly.Text) || !Directory.Exists(Path.GetDirectoryName(TxtOutputAssembly.Text)))
             {
                 MessageBox.Show(Resources.Error_NoOutputPath, Resources.Error_Term, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 TxtOutputAssembly.Focus();
