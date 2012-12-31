@@ -1,5 +1,5 @@
-﻿#region Header
-
+#region Header
+x
 /* ----------   ---   -------------------------------------------------------------------------------
  * Purpose:           Gui for Microsoft's ILMerge.
  * By:                G.W. van der Vegt (wim@vander-vegt.nl)
