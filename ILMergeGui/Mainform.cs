@@ -1,5 +1,5 @@
 #region Header
-x
+
 /* ----------   ---   -------------------------------------------------------------------------------
  * Purpose:           Gui for Microsoft's ILMerge.
  * By:                G.W. van der Vegt (wim@vander-vegt.nl)
@@ -56,6 +56,9 @@ x
  *                  - Released as v2.0.4
  * ----------   ---   -------------------------------------------------------------------------------
  * 19-12-2012 - veg - Fixed workitem 8741.
+ * 06-11-2013 - veg - Hopefully fixed workitem 8745.
+ *                    .Net v4.5 fixup. 4.5 is an inplace upgrade of 4.0 which does not alter the version number.
+ *                    See http://www.mattwrock.com/post/2012/02/29/What-you-should-know-about-running-ILMerge-on-Net-45-Beta-assemblies-targeting-Net-40.aspx
  * ----------   ---   ------------------------------------------------------------------------------- 
  */
 
@@ -474,6 +477,7 @@ namespace ILMergeGui
                         else
                             version = subVersionName;
                     }
+
                     Version ver = new Version(version);
 
                     String x64syspath = String.Empty;
@@ -548,7 +552,12 @@ namespace ILMergeGui
                     }
                     else
                     {
-                        versions.Add(new DotNet()
+                        //! .Net v4.5 fixup.
+                        //! [workitem:8745]
+                        if (ver.Major == 4 && ver.Minor == 5)
+                        {
+                            subVersionName = "4.5";
+                            versions.Add(new DotNet()
                             {
                                 name = String.Format(pattern, subVersionName + " " + type),
                                 version = ver,
@@ -557,6 +566,19 @@ namespace ILMergeGui
                                 x64WindowsPath = x64syspath.TrimEnd(Path.DirectorySeparatorChar),
                                 x64ProgramFilesPath = x64pfpath.TrimEnd(Path.DirectorySeparatorChar),
                             });
+                        }
+                        else
+                        {
+                            versions.Add(new DotNet()
+                                {
+                                    name = String.Format(pattern, subVersionName + " " + type),
+                                    version = ver,
+                                    x86WindowsPath = x86syspath.TrimEnd(Path.DirectorySeparatorChar),
+                                    x86ProgramFilesPath = x86pfpath.TrimEnd(Path.DirectorySeparatorChar),
+                                    x64WindowsPath = x64syspath.TrimEnd(Path.DirectorySeparatorChar),
+                                    x64ProgramFilesPath = x64pfpath.TrimEnd(Path.DirectorySeparatorChar),
+                                });
+                        }
                     }
                 }
             }
@@ -742,6 +764,13 @@ namespace ILMergeGui
             DotNet framework = (DotNet)CboTargetFramework.SelectedItem;
 
             String frameversion = String.Format("{0}.{1}", framework.version.Major, framework.version.Minor);
+
+            //! .Net v4.5 fixup. 4.5 is an inplace upgrade of 4.0 which does not alter the version number.
+            //! [workitem:8745]
+            if (framework.version.Major == 4 && framework.version.Minor == 5)
+            {
+                frameversion = "4.0";
+            }
 
             if (Environment.Is64BitOperatingSystem)
             {
