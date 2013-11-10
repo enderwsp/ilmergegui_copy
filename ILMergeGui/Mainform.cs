@@ -1537,7 +1537,9 @@ namespace ILMergeGui
             if (CboTargetFramework.SelectedIndex != -1)
             {
                 DotNet framework = (DotNet)(CboTargetFramework.SelectedItem);
-                doc.Root.Add(new XElement("Framework", framework.name));
+                doc.Root.Add(
+                    new XComment("Framework"),
+                    new XElement("Framework", framework.name));
             }
 
             //7) Save Engine
