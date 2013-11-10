@@ -1538,13 +1538,13 @@ namespace ILMergeGui
             {
                 DotNet framework = (DotNet)(CboTargetFramework.SelectedItem);
                 doc.Root.Add(
-                    new XComment("Framework"),
+                    new XComment(".NET Framework"),
                     new XElement("Framework", framework.name));
             }
 
             //7) Save Engine
             doc.Root.Add(
-                new XComment("Engine"),
+                new XComment("Merge Engine"),
                 new XElement("Engine", new XAttribute("Name", Engine.ToString())));
 
             doc.Save(filename);
