@@ -1484,6 +1484,9 @@ namespace ILMergeGui
                 Engine = (Merger)Enum.Parse(typeof(Merger), doc.Root.Element("Engine").Attribute("Name").Value);
 
                 LocateEngine(Engine);
+
+                radioButton1.Checked = Engine == Merger.ILMerge;
+                radioButton2.Checked = Engine == Merger.ILRepack;
             }
         }
 
