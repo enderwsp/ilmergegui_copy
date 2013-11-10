@@ -64,8 +64,9 @@
  *                  - First implementation works
  *                    1) No Support for v2.0, v3.x and v4.5.
  *                    2) Not all features are tested yet.
- *                    3) Engine not saved int configuration (*.ilproj) file.
+ *                    3) Engine not saved to configuration (*.ilproj) file.
  *                  - Made engine switchable.
+ *                  - Engine saved to/restored from configuration (*.ilproj) file.
  * ----------   ---   ------------------------------------------------------------------------------- 
  *                    TODO MRU on MainMenu (.ilproj) seems to fail!
  * ----------   ---   ------------------------------------------------------------------------------- 
@@ -1476,6 +1477,14 @@ namespace ILMergeGui
                     break;
                 }
             }
+
+            //7) Restore Engine
+            if (doc.Root.Element("Engine") != null)
+            {
+                Engine = (Merger)Enum.Parse(typeof(Merger), doc.Root.Element("Engine").Attribute("Name").Value);
+
+                LocateEngine(Engine);
+            }
         }
 
         private void SaveSettings(String filename)
@@ -1530,6 +1539,11 @@ namespace ILMergeGui
                 DotNet framework = (DotNet)(CboTargetFramework.SelectedItem);
                 doc.Root.Add(new XElement("Framework", framework.name));
             }
+
+            //7) Save Engine
+            doc.Root.Add(
+                new XComment("Engine"),
+                new XElement("Engine", new XAttribute("Name", Engine.ToString())));
 
             doc.Save(filename);
 
