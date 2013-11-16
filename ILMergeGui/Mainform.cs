@@ -68,7 +68,14 @@
  *                  - Made engine switchable.
  *                  - Engine saved to/restored from configuration (*.ilproj) file.
  * ----------   ---   ------------------------------------------------------------------------------- 
+ * 16-11-2013 - veg - Removed deprecated .Net Keys (v4.0 Client).
+ *                  - Fixed DotNet key values.
+ * ----------   ---   ------------------------------------------------------------------------------- 
  *                    TODO MRU on MainMenu (.ilproj) seems to fail!
+ *                    TODO Settings SetTargetPlatform on ILRepack leads to stack overflow.
+ *                    TODO ILRepack cannot merge twice (does either not delete the output or SetInputAssemblies files are not cleared properly).
+ *                    TODO Generate ILMerge.exe Commandline.
+ *                    TODO Generate ILRepack.exe Commandline.
  * ----------   ---   ------------------------------------------------------------------------------- 
  */
 
@@ -99,7 +106,6 @@ namespace ILMergeGui
 
     // TODO Make sure dialogs are cleaned before re-use.
     // TODO Add commandline options (cfg & /Merge).
-    // TODO Generate ILMerge.exe Commandline.
     // TODO Find out what ILMerge commandline options actually mean.
 
     // TODO Detect CF Framework (C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework)
@@ -456,6 +462,11 @@ namespace ILMergeGui
                 string[] subkeys = NDPKey.GetSubKeyNames();
                 foreach (string subkey in subkeys)
                 {
+                    //! 16-11-2013 - veg - Added.
+                    if (NDPKey.OpenSubKey(subkey).GetValue("") != null && NDPKey.OpenSubKey(subkey).GetValue("").Equals("deprecated"))
+                    {
+                        continue;
+                    }
                     GetDotNetVersion(NDPKey.OpenSubKey(subkey), subkey, versions);
                     GetDotNetVersion(NDPKey.OpenSubKey(subkey).OpenSubKey("Client"), subkey, versions);
                     GetDotNetVersion(NDPKey.OpenSubKey(subkey).OpenSubKey("Full"), subkey, versions);
@@ -616,6 +627,7 @@ namespace ILMergeGui
                         {
                             versions.Add(new DotNet()
                                 {
+                                    key = versionKey,
                                     name = String.Format(pattern, versionKey + " " + type),
                                     version = ver,
                                     x86WindowsPath = x86syspath.TrimEnd(Path.DirectorySeparatorChar),
@@ -833,7 +845,10 @@ namespace ILMergeGui
             //
             if (Engine == Merger.ILRepack)
             {
-                frameversion = framework.key;
+                //! 16-11-2013 - veg - Workaround for Stack Overflow in ILRepack!
+                frameversion = null;
+
+                //! String.Format("v{0}", framework.version.Major);
             }
 
             if (Environment.Is64BitOperatingSystem)
@@ -1735,7 +1750,7 @@ namespace ILMergeGui
                 MessageBox.Show(Resources.AssembliesMerged, Resources.Done, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
-            if (ChkGenerateLog.Checked)
+            if (ChkGenerateLog.Checked && File.Exists(TxtLogFile.Text) && new FileInfo(TxtLogFile.Text).Length != 0)
             {
                 Process.Start(new ProcessStartInfo(TxtLogFile.Text));
             }
