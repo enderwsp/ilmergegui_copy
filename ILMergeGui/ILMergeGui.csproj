@@ -129,6 +129,7 @@
     <EmbeddedResource Include="Images\IconFolder.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assemblies\Swiss.Mru.dll" />
     <Content Include="Icon.ico" />
     <Content Include="Images\IconDropHere.jpg" />
     <None Include="Resources\IconDropHere.jpg" />
