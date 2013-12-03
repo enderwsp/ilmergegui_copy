@@ -99,6 +99,7 @@ namespace ILMergeGui
 
     using Microsoft.Win32;
     using System.ComponentModel;
+    using Swiss;
 
     //! TODO Debug ILMerge call (Tag property).
     //! TODO Restore Groups on Xml Restore.
@@ -159,6 +160,10 @@ namespace ILMergeGui
         /// Storage for Available DotNet Frameworks.
         /// </summary>
         private List<DotNet> frameworks = null;
+
+        //MRU Code
+        private MruStripMenu mruMenu;
+        private string mruRegKey = "SOFTWARE\\" + Application.CompanyName + "\\ " + AppTitle;
 
         #endregion Fields
 
@@ -1213,6 +1218,24 @@ namespace ILMergeGui
 
             RestoreDefaults();
 
+
+            //Mru Code
+            RegistryKey regKey = Registry.CurrentUser.OpenSubKey(mruRegKey);
+            if (regKey != null)
+            {
+                //clearMruRegistryOnExitMenuItem.Checked = (int)regKey.GetValue("delSubkey", 0) != 0;
+
+                int delSub = (int)regKey.GetValue("delSubkey", 0);
+
+                regKey.Close();
+            }
+            
+            mruMenu = new MruStripMenuInline(fileToolStripMenuItem3, menuRecentFile, new MruStripMenu.ClickedHandler(OnMruFile), mruRegKey + "\\MRU", 16);
+            mruMenu.LoadFromRegistry();
+
+            menuStrip1.Update();
+            menuStrip1.Refresh();
+
             foreach (String arg in Environment.GetCommandLineArgs())
             {
                 if (!arg.StartsWith("/") &&
@@ -1300,6 +1323,10 @@ namespace ILMergeGui
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 RestoreSettings(openFileDialog1.FileName);
+
+                mruMenu.AddFile(openFileDialog1.FileName);
+                mruMenu.SetFirstFile(mruMenu.FindFilenameNumber(openFileDialog1.FileName));
+                mruMenu.SaveToRegistry();
             }
         }
 
@@ -1664,6 +1691,69 @@ namespace ILMergeGui
             openFile1.Multiselect = false;
             openFile1.Filter = filter + "|All Files|*.*";
             openFile1.FileName = filter.Substring(filter.IndexOf('|') + 1);
+        }
+
+        /// <summary>
+        /// The Application's Directory
+        /// </summary>
+        private static String AppDir
+        {
+            get
+            {
+                return Path.GetDirectoryName(Application.ExecutablePath);
+            }
+        }
+
+        /// <summary>
+        /// The Applications Title. 
+        /// 
+        /// It is either the ProductName or derived from the 
+        /// last part of the Application's Directory.
+        /// </summary>
+        private static String AppTitle
+        {
+            get
+            {
+                String Result = String.Empty;
+
+                if (String.IsNullOrEmpty(Application.ProductName))
+                {
+                    String[] split = AppDir.Split(Path.DirectorySeparatorChar);
+                    Result = Path.ChangeExtension(split[split.Length - 1], "");
+                }
+                else
+                {
+                    Result = Application.ProductName;
+                }
+
+                return Result;
+            }
+        }
+
+        private void OnMruFile(int number, String filename)
+        {
+            if (File.Exists(filename))
+            {
+                RestoreSettings(filename);
+
+                mruMenu.SetFirstFile(number);
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show(
+                             "The file:\n\n'" + filename
+                             + "'\n\ncannot be opened.\n\n"
+                             + "Remove this file from the MRU list?"
+                             , AppTitle
+                             , MessageBoxButtons.YesNo);
+
+                if (result == DialogResult.Yes)
+                {
+                    mruMenu.RemoveFile(number);
+                }
+            }
+
+            mruMenu.SaveToRegistry();
         }
 
         private void SetWaterMark(Boolean show)
