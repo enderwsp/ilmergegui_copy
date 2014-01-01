@@ -14,7 +14,6 @@
         const String picasadownloader_at_codeplex = "http://ilmergegui.codeplex.com";
         const String picasadownloader_mailto = "mailto:wim@vander-vegt.nl?SUBJECT=Suggestion for ILMergeGui";
         const String paypal_picasadownloader = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=84Y4JSJE47R7J";
-                                            
 
         /// <summary>
         /// Constructor.

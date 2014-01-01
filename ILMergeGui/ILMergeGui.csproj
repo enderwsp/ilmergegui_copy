@@ -150,6 +150,7 @@
     <Content Include="Assemblies\Swiss.Mru.dll" />
     <Content Include="Icon.ico" />
     <Content Include="Images\IconDropHere.jpg" />
+    <None Include="Resources\btn_donateCC_LG_EN.png" />
     <None Include="Resources\IconDropHere.jpg" />
   </ItemGroup>
   <ItemGroup>
