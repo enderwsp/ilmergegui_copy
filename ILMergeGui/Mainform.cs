@@ -1977,5 +1977,20 @@ namespace ILMergeGui
                 LocateEngine(Merger.ILRepack);
             }
         }
+
+        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ClickOnceUpdater.InstallUpdateSyncWithInfo("http://ilmergegui.codeplex.com/releases/view/latest");
+        }
+
+        private void visitWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ClickOnceUpdater.VisitWebsite("http://ilmergegui.codeplex.com//");
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new AboutDialog().ShowDialog();
+        }
     }
 }
