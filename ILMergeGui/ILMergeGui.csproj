@@ -77,6 +77,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Swiss.Mru, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Assemblies\Swiss.Mru.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -121,9 +125,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="..\..\PicasaDownloader\PicasaDownloader\PicasaDownloader.ilproj">
-      <Link>PicasaDownloader.ilproj</Link>
-    </None>
     <None Include="app.config" />
     <None Include="ILMergeGui_NewKey.pfx" />
     <None Include="ILMergeGui_TemporaryKey.pfx" />
@@ -171,12 +172,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\Mru\Mru\Mru.csproj">
-      <Project>{DB4A316B-AB75-4736-945C-917893C256C7}</Project>
-      <Name>Mru</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
