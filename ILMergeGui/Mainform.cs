@@ -1131,7 +1131,10 @@ namespace ILMergeGui
 
             //! .Net v4.5 fixup. 4.5 is an inplace upgrade of 4.0 which does not alter the version number.
             //! [workitem:8745]
-            if (Engine == Merger.ILMerge && framework.version.Major == 4 && framework.version.Minor == 5)
+
+            //! .Net v4.6 fixup.. 4.6 is an inplace upgrade of 4.0 which does not alter the version number.
+            //! [workitem:8753]
+            if (Engine == Merger.ILMerge && framework.version.Major == 4 && framework.version.Minor == 5 && framework.version.Minor == 6)
             {
                 frameversion = "4.0";
             }
@@ -1771,6 +1774,14 @@ namespace ILMergeGui
                             if (arg1.Equals("/merge", StringComparison.OrdinalIgnoreCase))
                             {
                                 btnMerge.PerformClick();
+
+                                foreach (String arg2 in Environment.GetCommandLineArgs())
+                                {
+                                    if (arg2.Equals("/close", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Application.Exit();
+                                    }
+                                }
                             }
                         }
 
@@ -1783,11 +1794,11 @@ namespace ILMergeGui
                 }
             }
 
-            foreach (String arg in Environment.GetCommandLineArgs())
+            foreach (String arg0 in Environment.GetCommandLineArgs())
             {
-                if (arg.Equals("/?", StringComparison.OrdinalIgnoreCase) ||
-                    arg.Equals("/h?", StringComparison.OrdinalIgnoreCase) ||
-                    arg.Equals("/help", StringComparison.OrdinalIgnoreCase))
+                if (arg0.Equals("/?", StringComparison.OrdinalIgnoreCase) ||
+                    arg0.Equals("/h?", StringComparison.OrdinalIgnoreCase) ||
+                    arg0.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("Commandline syntax is:\r\n\r\n" +
                       String.Format("ILMergeGui <{0}> [/Merge] [/?]\r\n", MyWildcard), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
