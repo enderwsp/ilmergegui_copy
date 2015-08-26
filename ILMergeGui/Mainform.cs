@@ -1801,7 +1801,12 @@ namespace ILMergeGui
                     arg0.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("Commandline syntax is:\r\n\r\n" +
-                      String.Format("ILMergeGui <{0}> [/Merge] [/?]\r\n", MyWildcard), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                      String.Format("ILMergeGui <{0}> [/Merge] [/Close] [/?]\r\n\r\n", MyWildcard) +
+                    " /Merge will automaticaly merge the supplied ilproject\r\n\r\n" +
+                    " /Close will automaticaly close ILMergeGUI if /Merge is present\r\n\r\n" +
+                    " /? will display this help\r\n", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
+                    Application.Exit();
                 }
             }
         }
