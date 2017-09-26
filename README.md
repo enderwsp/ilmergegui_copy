@@ -9,6 +9,8 @@ ask them. And if you have a question about this GUI, just post an issue or open 
 The official [ILMerge](http://research.microsoft.com/en-us/people/mbarnett/ILMerge.aspx).
 ILMerge [downloaded](http://www.microsoft.com/en-us/download/details.aspx?id=17630)
 
+If you've encountered problems, leave a (detailed) issue in the Issue Tracker.
+
 ### News ###
 
 New ILMerge-GUI version 2.0.9 available!
@@ -25,9 +27,7 @@ New ILMerge-GUI version 2.0.9 available!
 * Updated copyright.
 * Updated command line help.
 * Added current directory as ILMerge location strategy.
-* If you like this tool, leave me a note, rate this project or write a review or Donate to ILMergeGui. 
-  
-If you've encountered problems, leave a (detailed) issue in the Issue Tracker.
+* If you like this tool, leave me a note, rate this project or write a review or Donate to ILMergeGui.�
 
 ### Previous changelog ###
 * Added automatic creation of output directory.
