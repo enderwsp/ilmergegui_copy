@@ -11,6 +11,8 @@ ILMerge [downloaded](http://www.microsoft.com/en-us/download/details.aspx?id=176
 
 If you've encountered problems, leave a (detailed) issue in the Issue Tracker.
 
+** The portable version and click-once installer will follow soon. **
+
 ### News ###
 
 New ILMerge-GUI version 2.0.9 available!
@@ -27,7 +29,7 @@ New ILMerge-GUI version 2.0.9 available!
 * Updated copyright.
 * Updated command line help.
 * Added current directory as ILMerge location strategy.
-* If you like this tool, leave me a note, rate this project or write a review or Donate to ILMergeGui. 
+* If you like this tool, leave me a note, rate this project or write a review or Donate to ILMergeGui.ï¿½
 
 ### Previous changelog ###
 * Added automatic creation of output directory.
