@@ -3,3 +3,9 @@
 ################################################################################
 
 /.plastic
+/.vs
+/ILMergeGui/bin/Debug
+/ILMergeGui/obj/x86/Debug
+/ILRepack.zip
+/ILMergeGUI.v12.suo
+/ILMergeGui/ILMergeGui_NewKey.pfx
