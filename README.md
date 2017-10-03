@@ -6,8 +6,9 @@ Graphical interface to the Microsoft ILMerge utility. Makes it merging multiple 
 The ILMerge team has no direct relations to this project. So please if you have a question related to ILMerge itself, 
 ask them. And if you have a question about this GUI, just post an issue or open a discussion. 
 
-The official [ILMerge](http://research.microsoft.com/en-us/people/mbarnett/ILMerge.aspx).
-ILMerge [downloaded](http://www.microsoft.com/en-us/download/details.aspx?id=17630)
+The official [ILMerge] site(http://research.microsoft.com/en-us/people/mbarnett/ILMerge.aspx).
+
+ILMerge installer [download](http://www.microsoft.com/en-us/download/details.aspx?id=17630)
 
 If you've encountered problems, leave a (detailed) issue in the Issue Tracker.
 
