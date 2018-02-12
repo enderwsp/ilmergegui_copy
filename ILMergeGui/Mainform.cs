@@ -2,7 +2,7 @@
 
 /* ----------   ---   -------------------------------------------------------------------------------
  * Purpose:           Gui for Microsoft's ILMerge.
- * By:                G.W. van der Vegt (wim@vander-vegt.nl)
+ * By:                G.W. van der Vegt
  * Based on:          VB version by igoramadas (devv.com) at http://ilmergegui.codeplex.com/
  * Depends:           Nothing (well except ILMerge.exe).
  * ----------   ---   -------------------------------------------------------------------------------
@@ -32,7 +32,7 @@
  *                  - Removed donate.
  *                  - Debugged MakeRelativePath (same paths returned empty string).
  * ----------   ---   -------------------------------------------------------------------------------
- * 05-05-2012 - veg - Added menubar.
+ * 05-05-2012 - veg - Added menu bar.
  *                  - Added saving and restoring of settings in xml format.
  * ----------   ---   -------------------------------------------------------------------------------
  * 21-06-2012 - veg - Improved ILMerge.exe searching (added path and assembly registry).
@@ -95,6 +95,10 @@
  *                    v3.5 sp1	        no	    ok
  *                    v4.5 client	    ok	    ok
  *                    v4.5 full	        ok	    ok
+ *                    v4.6              ok
+ *                    v4.7              ok
+ *                    
+ *                    Note: all 4.x versions are extensions to v4.0.
  *                    
  *                    Version 2.0.7.0.
  * ----------   ---   -------------------------------------------------------------------------------
