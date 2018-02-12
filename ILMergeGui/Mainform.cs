@@ -931,15 +931,15 @@ namespace ILMergeGui
                         else
                         {
                             versions.Add(new DotNet()
-                                {
-                                    key = versionKey,
-                                    name = String.Format(pattern, versionKey + " " + type),
-                                    version = ver,
-                                    x86WindowsPath = x86syspath.TrimEnd(Path.DirectorySeparatorChar),
-                                    x86ProgramFilesPath = x86pfpath.TrimEnd(Path.DirectorySeparatorChar),
-                                    x64WindowsPath = x64syspath.TrimEnd(Path.DirectorySeparatorChar),
-                                    x64ProgramFilesPath = x64pfpath.TrimEnd(Path.DirectorySeparatorChar),
-                                });
+                            {
+                                key = versionKey,
+                                name = String.Format(pattern, versionKey + " " + type),
+                                version = ver,
+                                x86WindowsPath = x86syspath.TrimEnd(Path.DirectorySeparatorChar),
+                                x86ProgramFilesPath = x86pfpath.TrimEnd(Path.DirectorySeparatorChar),
+                                x64WindowsPath = x64syspath.TrimEnd(Path.DirectorySeparatorChar),
+                                x64ProgramFilesPath = x64pfpath.TrimEnd(Path.DirectorySeparatorChar),
+                            });
                         }
                     }
                 }
@@ -1047,7 +1047,7 @@ namespace ILMergeGui
             {
                 ExitMsg = Resources.Error_NoOutputPath;
                 ExitCode = 8;
-                
+
                 if (!AutoClose)
                 {
                     MessageBox.Show(ExitMsg, Resources.Error_Term, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1160,7 +1160,6 @@ namespace ILMergeGui
             Console.WriteLine("{0}.{1}={1}", ilMerge, "Internalize", DynaInvoke.SetProperty<Boolean>(iLMergePath, ilMerge, "Internalize", ChkInternalize.Checked));
 
             Console.WriteLine("{0}.{1}={1}", ilMerge, "XmlDocumentation", DynaInvoke.SetProperty<Boolean>(iLMergePath, ilMerge, "XmlDocumentation", ChkMergeXml.Checked));
-
             if (ChkSignKeyFile.Checked)
             {
                 Console.WriteLine("{0}.{1}={2}", ilMerge, "KeyFile", DynaInvoke.SetProperty<String>(iLMergePath, ilMerge, "KeyFile", TxtKeyFile.Text));
@@ -1187,7 +1186,10 @@ namespace ILMergeGui
 
             //! .Net v4.6 fixup.. 4.6 is an inplace upgrade of 4.0 which does not alter the version number.
             //! [workitem:8753]
-            if (Engine == Merger.ILMerge && framework.version.Major == 4 && (framework.version.Minor == 5 || framework.version.Minor == 6))
+
+            //! .Net v4.7 fixup.. 4.7 is an inplace upgrade of 4.0 which does not alter the version number.
+            //! 
+            if (Engine == Merger.ILMerge && framework.version.Major == 4 && (framework.version.Minor == 5 || framework.version.Minor == 6 || framework.version.Minor == 7))
             {
                 frameversion = "4.0";
             }
@@ -1433,7 +1435,7 @@ namespace ILMergeGui
 
         private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ClickOnceUpdater.InstallUpdateSyncWithInfo("http://ilmergegui.codeplex.com/releases/view/latest");
+            ClickOnceUpdater.InstallUpdateSyncWithInfo(AboutDialog.picasadownloader_at_bitbucket);
         }
 
         private void ChkGenerateLog_CheckedChanged(object sender, EventArgs e)
@@ -2398,7 +2400,7 @@ namespace ILMergeGui
 
         private void visitWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ClickOnceUpdater.VisitWebsite("http://ilmergegui.codeplex.com//");
+            ClickOnceUpdater.VisitWebsite(AboutDialog.picasadownloader_at_bitbucket);
         }
 
         /// <summary>
@@ -2487,6 +2489,18 @@ namespace ILMergeGui
             }
         }
 
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            try
+            {
+                Process.Start(AboutDialog.picasadownloader_at_bitbucket);
+            }
+            catch (Win32Exception e1)
+            {
+                MessageBox.Show(e1.Message);
+            }
+        }
+
         #endregion Methods
 
         #region Nested Types
@@ -2564,5 +2578,6 @@ namespace ILMergeGui
         }
 
         #endregion Nested Types
+
     }
 }

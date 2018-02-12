@@ -54,6 +54,7 @@
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ChkInternalize = new System.Windows.Forms.CheckBox();
             this.ChkMergeXml = new System.Windows.Forms.CheckBox();
+            this.ChkGenCmdLine = new System.Windows.Forms.CheckBox();
             this.WorkerILMerge = new System.ComponentModel.BackgroundWorker();
             this.openFile1 = new System.Windows.Forms.OpenFileDialog();
             this.LblPrimaryAssembly = new System.Windows.Forms.Label();
@@ -105,7 +106,6 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.label2 = new System.Windows.Forms.Label();
-            this.ChkGenCmdLine = new System.Windows.Forms.CheckBox();
             this.BoxOutput.SuspendLayout();
             this.BoxOptions.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -399,6 +399,17 @@
             this.ToolTips.SetToolTip(this.ChkMergeXml, "Merge xml documentation into a single file.");
             this.ChkMergeXml.UseVisualStyleBackColor = true;
             // 
+            // ChkGenCmdLine
+            // 
+            this.ChkGenCmdLine.AutoSize = true;
+            this.ChkGenCmdLine.Location = new System.Drawing.Point(126, 99);
+            this.ChkGenCmdLine.Name = "ChkGenCmdLine";
+            this.ChkGenCmdLine.Size = new System.Drawing.Size(128, 17);
+            this.ChkGenCmdLine.TabIndex = 22;
+            this.ChkGenCmdLine.Text = "Generate cmd line file";
+            this.ToolTips.SetToolTip(this.ChkGenCmdLine, "Write results to a log file.");
+            this.ChkGenCmdLine.UseVisualStyleBackColor = true;
+            // 
             // WorkerILMerge
             // 
             this.WorkerILMerge.DoWork += new System.ComponentModel.DoWorkEventHandler(this.WorkerILMerge_DoWork);
@@ -537,11 +548,12 @@
             this.linkLabel1.LinkColor = System.Drawing.SystemColors.HotTrack;
             this.linkLabel1.Location = new System.Drawing.Point(474, 553);
             this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(159, 13);
+            this.linkLabel1.Size = new System.Drawing.Size(150, 13);
             this.linkLabel1.TabIndex = 36;
             this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "http://ilmergegui.codeplex.com/";
+            this.linkLabel1.Text = "https://wvd-vegt.bitbucket.io/";
             this.linkLabel1.VisitedLinkColor = System.Drawing.SystemColors.HotTrack;
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // menuStrip1
             // 
@@ -817,17 +829,6 @@
             this.label2.Size = new System.Drawing.Size(35, 13);
             this.label2.TabIndex = 41;
             this.label2.Text = "label2";
-            // 
-            // ChkGenCmdLine
-            // 
-            this.ChkGenCmdLine.AutoSize = true;
-            this.ChkGenCmdLine.Location = new System.Drawing.Point(126, 99);
-            this.ChkGenCmdLine.Name = "ChkGenCmdLine";
-            this.ChkGenCmdLine.Size = new System.Drawing.Size(128, 17);
-            this.ChkGenCmdLine.TabIndex = 22;
-            this.ChkGenCmdLine.Text = "Generate cmd line file";
-            this.ToolTips.SetToolTip(this.ChkGenCmdLine, "Write results to a log file.");
-            this.ChkGenCmdLine.UseVisualStyleBackColor = true;
             // 
             // Mainform
             // 

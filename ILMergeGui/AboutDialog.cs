@@ -11,7 +11,10 @@
     /// </summary>
     public partial class AboutDialog : Form
     {
-        const String picasadownloader_at_codeplex = "http://ilmergegui.codeplex.com";
+        /// <summary>
+        /// The picasadownloader at bitbucket.
+        /// </summary>
+        public const String picasadownloader_at_bitbucket = "https://wvd-vegt.bitbucket.io/";
         const String picasadownloader_mailto = "mailto:wim@vander-vegt.nl?SUBJECT=Suggestion for ILMergeGui";
         const String paypal_picasadownloader = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=84Y4JSJE47R7J";
 
@@ -41,7 +44,7 @@
         {
             try
             {
-                Process.Start(picasadownloader_at_codeplex);
+                Process.Start(picasadownloader_at_bitbucket);
             }
             catch (Win32Exception e1)
             {
