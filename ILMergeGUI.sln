@@ -1,17 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2002
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILMergeGui", "ILMergeGui\ILMergeGui.csproj", "{77B0B9CA-5284-4F13-80DE-464514948F5C}"
-	GlobalSection(PlasticSccProperties) = preSolution
-		ControlledByPlastic = True
-		SccProvider = Plastic SCM
-	EndGlobalSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0DBD5892-FB4C-4FE6-939D-73A875CDBE9E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
-	GlobalSection(PlasticSccProperties) = preSolution
-		ControlledByPlastic = True
-		SccProvider = Plastic SCM
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -37,11 +36,20 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		BuildVersion_UseGlobalSettings = True
-		BuildVersion_BuildVersioningStyle = None.None.Increment.None
-		BuildVersion_BuildAction = ReBuild
-		BuildVersion_StartDate = 2012/6/22
-		BuildVersion_UpdateAssemblyVersion = True
 		BuildVersion_UpdateFileVersion = True
+		BuildVersion_UpdateAssemblyVersion = True
+		BuildVersion_StartDate = 2012/6/22
+		BuildVersion_BuildAction = ReBuild
+		BuildVersion_BuildVersioningStyle = None.None.Increment.None
+		BuildVersion_UseGlobalSettings = True
+		SolutionGuid = {A2CB7792-5071-4F5B-B367-997F7D58D271}
+	EndGlobalSection
+	GlobalSection(PlasticSccProperties) = preSolution
+		ControlledByPlastic = True
+		SccProvider = Plastic SCM
+	EndGlobalSection
+	GlobalSection(PlasticSccProperties) = preSolution
+		ControlledByPlastic = True
+		SccProvider = Plastic SCM
 	EndGlobalSection
 EndGlobal

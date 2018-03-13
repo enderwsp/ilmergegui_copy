@@ -30,7 +30,7 @@ New ILMerge-GUI version 2.0.9 available!
 * Updated copyright.
 * Updated command line help.
 * Added current directory as ILMerge location strategy.
-* If you like this tool, leave me a note, rate this project or write a review or Donate to ILMergeGui.�
+* If you like this tool, leave me a note, rate this project or write a review or Donate to ILMergeGui !
 
 ### Previous changelog ###
 * Added automatic creation of output directory.
