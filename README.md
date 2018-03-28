@@ -10,6 +10,8 @@ The official [ILMerge](http://research.microsoft.com/en-us/people/mbarnett/ILMer
 
 ILMerge [installer](http://www.microsoft.com/en-us/download/details.aspx?id=17630) download.
 
+ILMergeGUI [installer](https://wvd-vegt.bitbucket.io/).
+
 If you've encountered problems, leave a (detailed) issue in the Issue Tracker.
 
 ** The portable version and click-once installer will follow soon. **
