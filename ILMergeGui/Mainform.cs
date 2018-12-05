@@ -108,6 +108,10 @@
 
 namespace ILMergeGui
 {
+
+    //! See https://github.com/dotnet/ILMerge (open source now and available as package).
+    //  For command-line generation use GetProperties on ILMerge?
+    //  
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -1282,6 +1286,16 @@ namespace ILMergeGui
             }
             Console.WriteLine("{0}.{1}={2}", ilMerge, "OutputFile", DynaInvoke.SetProperty<String>(iLMergePath, ilMerge, "OutputFile", TxtOutputAssembly.Text));
 
+            // Fix for reflection code returning the wrong Version (probably the last merged assembly).
+            // 
+            //FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Primary);
+            //Version ver = new Version(fvi.FileVersion);
+            //Console.WriteLine("{0}.{1}={2}", ilMerge, "Version", DynaInvoke.SetProperty<Version>(iLMergePath, ilMerge, "Version", ver));
+
+            //! Happens automatically when Copy attributes is cleared.
+            // 
+            //Console.WriteLine("{0}.{1}={2}", ilMerge, "AttributeFile", DynaInvoke.SetProperty<String>(iLMergePath, ilMerge, "AttributeFile", Primary));
+
             // Clear input assemblies.
             Console.WriteLine("{0}.{1}(", ilMerge, "SetInputAssemblies");
             foreach (String asm in arrAssemblies)
@@ -1317,6 +1331,12 @@ namespace ILMergeGui
             sb.AppendLine(String.Format("\"{0}\"", iLMergePath));
 
             //! [/lib:directory]* 
+
+            // [/version[:filename]] 
+            if (DynaInvoke.GetProperty<Version>(iLMergePath, ilMerge, "Version") != null)
+            {
+                sb.AppendLine(String.Format("/version:\"{0}\"", DynaInvoke.GetProperty<Version>(iLMergePath, ilMerge, "Version")));
+            }
 
             // [/log[:filename]] 
             if (DynaInvoke.GetProperty<Boolean>(iLMergePath, ilMerge, "Log"))
