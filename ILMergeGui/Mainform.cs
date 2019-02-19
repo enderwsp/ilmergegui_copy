@@ -1341,9 +1341,9 @@ namespace ILMergeGui
             // [/log[:filename]] 
             if (DynaInvoke.GetProperty<Boolean>(iLMergePath, ilMerge, "Log"))
             {
-                if (DynaInvoke.GetProperty<Boolean>(iLMergePath, ilMerge, "LogFile"))
+                if (!String.IsNullOrWhiteSpace(DynaInvoke.GetProperty<String>(iLMergePath, ilMerge, "LogFile")))
                 {
-                    sb.AppendLine(String.Format("/log:\"{0}\"", DynaInvoke.GetProperty<Boolean>(iLMergePath, ilMerge, "LogFile")));
+                    sb.AppendLine(String.Format("/log:\"{0}\"", DynaInvoke.GetProperty<String>(iLMergePath, ilMerge, "LogFile")));
                 }
                 else
                 {
