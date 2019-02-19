@@ -1114,8 +1114,10 @@ namespace ILMergeGui
             {
                 try
                 {
-                    FileInfo objFile = new FileInfo(TxtOutputAssembly.Text);
-                    objFile.Attributes = FileAttributes.Normal;
+                    FileInfo objFile = new FileInfo(TxtOutputAssembly.Text)
+                    {
+                        Attributes = FileAttributes.Normal
+                    };
                     objFile.Delete();
                     objFile = null;
                 }
@@ -1802,9 +1804,11 @@ namespace ILMergeGui
         {
             Boolean registered = RegisterIlProj();
 
-            Extensions = new Dictionary<String, String>();
-            Extensions.Add("exe", "Executable(s)");
-            Extensions.Add("dll", "Assemblies or dll(s)");
+            Extensions = new Dictionary<String, String>
+            {
+                { "exe", "Executable(s)" },
+                { "dll", "Assemblies or dll(s)" }
+            };
 
             openFileDialog1.DefaultExt = MyWildcard;
             openFileDialog1.FileName = MyWildcard;
