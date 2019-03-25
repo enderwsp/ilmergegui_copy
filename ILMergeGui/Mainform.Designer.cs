@@ -125,7 +125,7 @@
             this.LinkILMerge.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.LinkILMerge.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
             this.LinkILMerge.LinkColor = System.Drawing.SystemColors.HotTrack;
-            this.LinkILMerge.Location = new System.Drawing.Point(370, 535);
+            this.LinkILMerge.Location = new System.Drawing.Point(361, 535);
             this.LinkILMerge.Name = "LinkILMerge";
             this.LinkILMerge.Size = new System.Drawing.Size(263, 13);
             this.LinkILMerge.TabIndex = 37;

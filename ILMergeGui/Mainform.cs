@@ -1639,6 +1639,36 @@ namespace ILMergeGui
             }
         }
 
+        internal static void ExtractEmbeddedResource(String outputDir, String resourceLocation, List<String> files)
+        {
+            String[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            foreach (String resourceName in resourceNames)
+            {
+                Console.WriteLine(resourceName);
+            }
+
+            foreach (String file in files)
+            {
+                //! Workaround for not being able to embed 'form1.designer.cs' (got renamed to a safe name), append a _.
+                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceLocation + @"." + file))
+                {
+                    if (!Directory.Exists(outputDir))
+                    {
+                        Directory.CreateDirectory(outputDir);
+                    }
+
+                    using (FileStream fileStream = new FileStream(Path.Combine(outputDir, file), FileMode.Create))
+                    {
+                        for (Int32 i = 0; i < stream.Length; i++)
+                        {
+                            fileStream.WriteByte((Byte)stream.ReadByte());
+                        }
+                        fileStream.Close();
+                    }
+                }
+            }
+        }
+
         private void LocateIlMerge()
         {
             Debug.Print("[ILMerge]");
@@ -1719,10 +1749,22 @@ namespace ILMergeGui
                 }
             }
 
-            //4) Current Directory...
-            if (File.Exists("ILMerge.exe"))
+            String app = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+            //! 4) Extracting embedded ILMerge.exe
+            // 
+            if (!File.Exists(Path.Combine(app, "ILMerge.exe"))
+                || !File.Exists(Path.Combine(app, "System.Compiler.dll")))
             {
-                iLMergePath = Path.GetFullPath("ILMerge.exe");
+                Debug.Print("Extracting embedded ILMerge.exe");
+                ExtractEmbeddedResource(app, "ILMergeGui", new List<String>() { "ILMerge.exe", "System.Compiler.dll" });
+            }
+
+            //5) Check Current Directory...
+            //
+            if (File.Exists(@".\ILMerge.exe"))
+            {
+                iLMergePath = Path.GetFullPath(@".\ILMerge.exe");
 
                 Debug.Print("ILMerge Location Method=Current Directory");
                 Debug.Print("ILMerge Path={0}", iLMergePath);

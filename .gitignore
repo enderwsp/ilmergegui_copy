@@ -14,3 +14,5 @@
 /ILMergeGUI_CodePlex_Backup.zip
 /ILMergeGui/bin/Merged
 *.pfx
+/ILMergeGui/ILMerge.exe
+/ILMergeGui/System.Compiler.dll
