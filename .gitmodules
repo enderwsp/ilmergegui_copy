@@ -1,0 +1,3 @@
+[submodule "ILMerge"]
+	path = ILMerge
+	url = https://github.com/dotnet/ILMerge.git
